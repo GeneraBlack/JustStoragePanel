@@ -43,7 +43,7 @@ Build the mod locally with:
 The generated artifact is written to build/libs and is named like this:
 
 ```text
-juststoragepanel-1.21.1-1.0.1.jar
+juststoragepanel-1.21.1-1.0.2.jar
 ```
 
 Publishing
@@ -74,7 +74,7 @@ In GitHub Actions, `GITHUB_TOKEN` is sufficient for publishing to that default G
 The published Maven coordinates use this artifact id:
 
 ```text
-de.juststoragepanel:juststoragepanel-1.21.1:1.0.1
+de.juststoragepanel:juststoragepanel-1.21.1:1.0.2
 ```
 
 To publish the built jar to CurseForge, run:
@@ -106,7 +106,7 @@ Recommended release flow:
 
 1. Create your own Git repository and point `origin` to it.
 2. Push the main branch.
-3. Create and push a version tag such as `v1.0.1`.
+3. Create and push a version tag such as `v1.0.2`.
 4. Configure `MAVEN_URL`, `MAVEN_PASSWORD`, `CURSEFORGE_PROJECT_ID`, and `CURSEFORGE_TOKEN` in GitHub if you want automated publishing.
 
 If you publish to GitHub Packages for this repository, `MAVEN_URL` is optional because the workflow derives it automatically from the repository name.

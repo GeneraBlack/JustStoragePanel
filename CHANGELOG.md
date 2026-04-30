@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2
+
+- Added the full CurseForge project description to the repository for release maintenance.
+- Finalized the public 1.0.2 release metadata and documentation for GitHub, CurseForge, and Maven publication.
+- Kept the gameplay feature set unchanged for Minecraft 1.21.1 and NeoForge 21.1.218.
+
 ## 1.0.1
 
 - Repackaged the public release as version 1.0.1 for GitHub and CurseForge publication.
