@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3
+
+- Published a clean follow-up release that includes the decoupled GitHub release workflow.
+- Ensured Maven, CurseForge, and GitHub release steps can run independently during tagged releases.
+- Kept the gameplay feature set unchanged for Minecraft 1.21.1 and NeoForge 21.1.218.
+
 ## 1.0.2
 
 - Added the full CurseForge project description to the repository for release maintenance.
