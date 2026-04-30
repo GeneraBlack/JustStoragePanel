@@ -101,6 +101,7 @@ GitHub Workflows
 
 - `build.yml` builds the project on pushes and pull requests.
 - `release.yml` builds tagged releases, uploads the jar as a GitHub release asset, and can also publish to Maven and CurseForge when the required repository variables and secrets are configured.
+- `republish.yml` reruns Maven and/or CurseForge publishing for an existing branch or tag without creating a new release tag.
 
 Recommended release flow:
 
@@ -110,6 +111,21 @@ Recommended release flow:
 4. Configure `MAVEN_URL`, `MAVEN_PASSWORD`, `CURSEFORGE_PROJECT_ID`, and `CURSEFORGE_TOKEN` in GitHub if you want automated publishing.
 
 If you publish to GitHub Packages for this repository, `MAVEN_URL` is optional because the workflow derives it automatically from the repository name.
+
+CurseForge Verification
+-----------------------
+
+If a file upload succeeds but the project page still appears outdated, verify the file from the CurseForge `Files` view instead of only the overview page.
+
+Check these points on CurseForge:
+
+1. Open the project's `Files` tab.
+2. Sort by newest files.
+3. Set the game version filter to `1.21.1` or show all versions.
+4. Set the mod loader filter to `NeoForge` or show all loaders.
+5. Hard refresh the page if the newest file is not shown immediately.
+
+If a tagged release ever reaches GitHub but one publishing target still lags behind, use the `Re-Publish` workflow from GitHub Actions and select the affected tag, for example `v1.0.3`.
 
 Development Run
 ---------------
