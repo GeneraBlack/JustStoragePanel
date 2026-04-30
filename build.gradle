@@ -37,8 +37,33 @@ def resolveConfigValue = { String propertyName, String envName ->
     return null
 }
 
+def deriveGitHubPackagesUrl = { String repositoryUrl ->
+    if (repositoryUrl == null) {
+        return null
+    }
+
+    def normalizedUrl = repositoryUrl.trim()
+    if (normalizedUrl.isEmpty()) {
+        return null
+    }
+
+    normalizedUrl = normalizedUrl.replace('.git', '')
+
+    def matcher = normalizedUrl =~ /^https:\/\/github\.com\/([^\/]+\/[^\/]+)$/
+    if (matcher.matches()) {
+        return "https://maven.pkg.github.com/${matcher.group(1)}"
+    }
+
+    matcher = normalizedUrl =~ /^git@github\.com:([^\/]+\/[^\/]+)$/
+    if (matcher.matches()) {
+        return "https://maven.pkg.github.com/${matcher.group(1)}"
+    }
+
+    return null
+}
+
 def gitRepositoryUrl = resolveConfigValue('gitRepositoryUrl', 'GIT_REPOSITORY_URL')
-def mavenUrl = resolveConfigValue('mavenUrl', 'MAVEN_URL')
+def mavenUrl = resolveConfigValue('mavenUrl', 'MAVEN_URL') ?: deriveGitHubPackagesUrl(gitRepositoryUrl)
 def mavenUsername = resolveConfigValue('mavenUsername', 'MAVEN_USERNAME') ?: System.getenv('GITHUB_ACTOR')
 def mavenPassword = resolveConfigValue('mavenPassword', 'MAVEN_PASSWORD') ?: System.getenv('GITHUB_TOKEN')
 def curseforgeProjectId = resolveConfigValue('curseforgeProjectId', 'CURSEFORGE_PROJECT_ID')

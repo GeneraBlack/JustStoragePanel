@@ -63,6 +63,14 @@ To publish to a remote Maven repository instead, provide these environment varia
 - `MAVEN_USERNAME` or `mavenUsername`
 - `MAVEN_PASSWORD` or `mavenPassword`
 
+When the repository URL points to GitHub, the build defaults to GitHub Packages automatically. For this project that means the default Maven target is:
+
+```text
+https://maven.pkg.github.com/GeneraBlack/JustStoragePanel
+```
+
+In GitHub Actions, `GITHUB_TOKEN` is sufficient for publishing to that default GitHub Packages registry.
+
 The published Maven coordinates use this artifact id:
 
 ```text
@@ -100,6 +108,8 @@ Recommended release flow:
 2. Push the main branch.
 3. Create and push a version tag such as `v1.0.1`.
 4. Configure `MAVEN_URL`, `MAVEN_PASSWORD`, `CURSEFORGE_PROJECT_ID`, and `CURSEFORGE_TOKEN` in GitHub if you want automated publishing.
+
+If you publish to GitHub Packages for this repository, `MAVEN_URL` is optional because the workflow derives it automatically from the repository name.
 
 Development Run
 ---------------
