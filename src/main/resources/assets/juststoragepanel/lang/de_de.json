@@ -1,0 +1,10 @@
+{
+  "block.juststoragepanel.access_panel": "Zugriffspanel",
+  "block.juststoragepanel.crafting_panel": "Crafting-Panel",
+  "block.juststoragepanel.logic_cable": "Logikkabel",
+  "screen.juststoragepanel.crafting": "Crafting",
+  "screen.juststoragepanel.search": "Suche",
+  "screen.juststoragepanel.search_hint": "Netzwerk-Items suchen...",
+  "screen.juststoragepanel.jei": "JEI",
+  "jei.juststoragepanel.transfer.too_large": "Dieses Rezept passt nicht in das Crafting-Panel."
+}

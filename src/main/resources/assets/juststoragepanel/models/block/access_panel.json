@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "juststoragepanel:block/access_panel_top",
+    "front": "juststoragepanel:block/access_panel_front",
+    "side": "juststoragepanel:block/access_panel_side",
+    "bottom": "juststoragepanel:block/access_panel_bottom"
+  }
+}

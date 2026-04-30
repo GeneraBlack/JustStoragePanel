@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "juststoragepanel:block/crafting_panel_top",
+    "front": "juststoragepanel:block/crafting_panel_front",
+    "side": "juststoragepanel:block/crafting_panel_side",
+    "bottom": "juststoragepanel:block/crafting_panel_bottom"
+  }
+}

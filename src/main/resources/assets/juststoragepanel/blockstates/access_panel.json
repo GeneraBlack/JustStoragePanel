@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "juststoragepanel:block/access_panel"
+    },
+    "facing=east": {
+      "model": "juststoragepanel:block/access_panel",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "juststoragepanel:block/access_panel",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "juststoragepanel:block/access_panel",
+      "y": 270
+    }
+  }
+}

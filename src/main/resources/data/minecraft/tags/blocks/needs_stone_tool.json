@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "juststoragepanel:access_panel",
+    "juststoragepanel:crafting_panel",
+    "juststoragepanel:logic_cable"
+  ]
+}
