@@ -101,6 +101,7 @@ GitHub Workflows
 
 - `build.yml` builds the project on pushes and pull requests.
 - `release.yml` builds tagged releases, uploads the jar as a GitHub release asset, and can also publish to Maven and CurseForge when the required repository variables and secrets are configured.
+- `release-recovery.yml` automatically retries Maven and/or CurseForge publishing when the main `Release` workflow completed without those publish jobs succeeding.
 - `republish.yml` reruns Maven and/or CurseForge publishing for an existing branch or tag without creating a new release tag.
 
 Recommended release flow:
@@ -111,6 +112,8 @@ Recommended release flow:
 4. Configure `MAVEN_URL`, `MAVEN_PASSWORD`, `CURSEFORGE_PROJECT_ID`, and `CURSEFORGE_TOKEN` in GitHub if you want automated publishing.
 
 If you publish to GitHub Packages for this repository, `MAVEN_URL` is optional because the workflow derives it automatically from the repository name.
+
+If a tagged `Release` workflow finishes without a successful Maven or CurseForge publish job, `release-recovery.yml` automatically retries the missing target from the exact same release commit.
 
 CurseForge Verification
 -----------------------
