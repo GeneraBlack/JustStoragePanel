@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+- Repackaged the public release as version 1.0.1 for GitHub and CurseForge publication.
+- Kept the same gameplay feature set for Minecraft 1.21.1 and NeoForge 21.1.218.
+
 ## 1.0.0
 
 - Initial public release of Just Storage Panel for Minecraft 1.21.1 and NeoForge 21.1.218.
