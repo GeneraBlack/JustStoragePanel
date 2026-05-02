@@ -93,6 +93,7 @@ Optional CurseForge configuration:
 - `CURSEFORGE_RELEASE_TYPE` or `curseforgeReleaseType` with `release`, `beta`, or `alpha`
 
 The default changelog source for CurseForge releases is `CHANGELOG.md`.
+Tagged GitHub workflows now fail fast when `CURSEFORGE_PROJECT_ID` or `CURSEFORGE_TOKEN` is missing, so a green release can no longer hide a skipped CurseForge upload.
 
 The CurseForge Gradle plugin currently does not support Gradle's configuration cache cleanly, so the command above explicitly disables it for that publish step.
 
@@ -100,7 +101,7 @@ GitHub Workflows
 ----------------
 
 - `build.yml` builds the project on pushes and pull requests.
-- `release.yml` builds tagged releases, uploads the jar as a GitHub release asset, and can also publish to Maven and CurseForge when the required repository variables and secrets are configured.
+- `release.yml` runs only for pushed version tags, uploads the jar as a GitHub release asset, and can also publish to Maven and CurseForge when the required repository variables and secrets are configured.
 - `release-recovery.yml` automatically retries Maven and/or CurseForge publishing when the main `Release` workflow completed without those publish jobs succeeding.
 - `republish.yml` reruns Maven and/or CurseForge publishing for an existing branch or tag without creating a new release tag.
 
@@ -113,7 +114,7 @@ Recommended release flow:
 
 If you publish to GitHub Packages for this repository, `MAVEN_URL` is optional because the workflow derives it automatically from the repository name.
 
-If a tagged `Release` workflow finishes without a successful Maven or CurseForge publish job, `release-recovery.yml` automatically retries the missing target from the exact same release commit.
+If a tagged `Release` workflow finishes without a successful Maven publish, or if the CurseForge job never reached a successful `Publish to CurseForge` step, `release-recovery.yml` automatically retries the missing target from the exact same release commit.
 
 CurseForge Verification
 -----------------------
@@ -127,8 +128,9 @@ Check these points on CurseForge:
 3. Set the game version filter to `1.21.1` or show all versions.
 4. Set the mod loader filter to `NeoForge` or show all loaders.
 5. Hard refresh the page if the newest file is not shown immediately.
+6. Check the GitHub Actions run: if the `Publish to CurseForge` step shows `0s`, the upload was skipped before Gradle ran.
 
-If a tagged release ever reaches GitHub but one publishing target still lags behind, use the `Re-Publish` workflow from GitHub Actions and select the affected tag, for example `v1.0.4`.
+If a tagged release ever reaches GitHub but one publishing target still lags behind, use the `Re-Publish` workflow from GitHub Actions and select the affected tag, for example `v1.0.4`. The main `Release` workflow itself is tag-driven and no longer intended for manual branch publishes.
 
 Development Run
 ---------------

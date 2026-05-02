@@ -36,12 +36,34 @@ jobs:
             });
 
             const findJob = (name) => data.jobs.find((job) => job.name === name);
-            const needsRetry = (job) => !job || ['failure', 'cancelled', 'skipped', 'timed_out', 'action_required'].includes(job.conclusion || '');
+            const hasTerminalFailure = (job) => !job || ['failure', 'cancelled', 'skipped', 'timed_out', 'action_required'].includes(job.conclusion || '');
+            const findStep = (job, stepName) => job?.steps?.find((step) => step.name === stepName);
+            const publishStepSucceeded = (job, stepName) => findStep(job, stepName)?.conclusion === 'success';
+            const configStepFailed = (job, stepName) => findStep(job, stepName)?.conclusion === 'failure';
+            const needsPublishRetry = (job, publishStepName, validationStepName) => {
+              if (!job) {
+                return true;
+              }
+
+              if (publishStepSucceeded(job, publishStepName)) {
+                return false;
+              }
+
+              if (validationStepName && configStepFailed(job, validationStepName)) {
+                return false;
+              }
+
+              return hasTerminalFailure(job) || findStep(job, publishStepName)?.conclusion !== 'success';
+            };
 
             const buildJob = findJob('build');
             const buildSucceeded = buildJob?.conclusion === 'success';
-            const shouldPublishMaven = buildSucceeded && needsRetry(findJob('publish-maven'));
-            const shouldPublishCurseForge = buildSucceeded && needsRetry(findJob('publish-curseforge'));
+            const shouldPublishMaven = buildSucceeded && hasTerminalFailure(findJob('publish-maven'));
+            const shouldPublishCurseForge = buildSucceeded && needsPublishRetry(
+              findJob('publish-curseforge'),
+              'Publish to CurseForge',
+              'Validate CurseForge configuration'
+            );
 
             core.info(`Release run ${runId} build conclusion: ${buildJob?.conclusion || 'missing'}`);
             core.info(`Retry Maven publish: ${shouldPublishMaven}`);
@@ -108,6 +130,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Validate CurseForge configuration
+        shell: bash
+        run: |
+          if [ -z "${CURSEFORGE_PROJECT_ID}" ] || [ -z "${CURSEFORGE_TOKEN}" ]; then
+            echo "::error::CURSEFORGE_PROJECT_ID and CURSEFORGE_TOKEN must both be configured for CurseForge publishing."
+            exit 1
+          fi
+
       - name: Publish to CurseForge
-        if: ${{ env.CURSEFORGE_PROJECT_ID != '' && env.CURSEFORGE_TOKEN != '' }}
         run: ./gradlew --no-configuration-cache publishCurseForge

@@ -52,6 +52,7 @@ jobs:
         with:
           name: republish-${{ inputs.target_ref }}
           path: build/libs/*.jar
+          if-no-files-found: error
 
   publish-maven:
     needs: build
@@ -110,6 +111,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Validate CurseForge configuration
+        shell: bash
+        run: |
+          if [ -z "${CURSEFORGE_PROJECT_ID}" ] || [ -z "${CURSEFORGE_TOKEN}" ]; then
+            echo "::error::CURSEFORGE_PROJECT_ID and CURSEFORGE_TOKEN must both be configured for CurseForge publishing."
+            exit 1
+          fi
+
       - name: Publish to CurseForge
-        if: ${{ env.CURSEFORGE_PROJECT_ID != '' && env.CURSEFORGE_TOKEN != '' }}
         run: ./gradlew --no-configuration-cache publishCurseForge

@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -46,11 +45,12 @@ jobs:
         with:
           name: juststoragepanel-${{ github.ref_name }}
           path: build/libs/*.jar
+          if-no-files-found: error
 
   publish-maven:
     needs: build
     runs-on: ubuntu-latest
-    if: ${{ vars.MAVEN_URL != '' || github.repository != '' }}
+    if: ${{ github.ref_type == 'tag' }}
     env:
       GIT_REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
       MAVEN_URL: ${{ vars.MAVEN_URL != '' && vars.MAVEN_URL || format('https://maven.pkg.github.com/{0}', github.repository) }}
@@ -79,6 +79,7 @@ jobs:
   publish-curseforge:
     needs: build
     runs-on: ubuntu-latest
+    if: ${{ github.ref_type == 'tag' }}
     env:
       GIT_REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
       CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
@@ -101,8 +102,15 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Validate CurseForge configuration
+        shell: bash
+        run: |
+          if [ -z "${CURSEFORGE_PROJECT_ID}" ] || [ -z "${CURSEFORGE_TOKEN}" ]; then
+            echo "::error::CURSEFORGE_PROJECT_ID and CURSEFORGE_TOKEN must both be configured for CurseForge publishing."
+            exit 1
+          fi
+
       - name: Publish to CurseForge
-        if: ${{ env.CURSEFORGE_PROJECT_ID != '' && env.CURSEFORGE_TOKEN != '' }}
         run: ./gradlew --no-configuration-cache publishCurseForge
 
   create-github-release:
