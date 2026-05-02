@@ -79,6 +79,7 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
 
         if (container == this.craftSlots && this.player instanceof ServerPlayer serverPlayer && serverPlayer.level() instanceof ServerLevel serverLevel) {
             this.updateCraftingResult(serverLevel);
+            this.markDisplayDirty();
         }
     }
 

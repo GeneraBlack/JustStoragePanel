@@ -43,7 +43,7 @@ Build the mod locally with:
 The generated artifact is written to build/libs and is named like this:
 
 ```text
-juststoragepanel-1.21.1-1.0.3.jar
+juststoragepanel-1.21.1-1.0.4.jar
 ```
 
 Publishing
@@ -74,7 +74,7 @@ In GitHub Actions, `GITHUB_TOKEN` is sufficient for publishing to that default G
 The published Maven coordinates use this artifact id:
 
 ```text
-de.juststoragepanel:juststoragepanel-1.21.1:1.0.3
+de.juststoragepanel:juststoragepanel-1.21.1:1.0.4
 ```
 
 To publish the built jar to CurseForge, run:
@@ -108,7 +108,7 @@ Recommended release flow:
 
 1. Create your own Git repository and point `origin` to it.
 2. Push the main branch.
-3. Create and push a version tag such as `v1.0.3`.
+3. Create and push a version tag such as `v1.0.4`.
 4. Configure `MAVEN_URL`, `MAVEN_PASSWORD`, `CURSEFORGE_PROJECT_ID`, and `CURSEFORGE_TOKEN` in GitHub if you want automated publishing.
 
 If you publish to GitHub Packages for this repository, `MAVEN_URL` is optional because the workflow derives it automatically from the repository name.
@@ -128,7 +128,7 @@ Check these points on CurseForge:
 4. Set the mod loader filter to `NeoForge` or show all loaders.
 5. Hard refresh the page if the newest file is not shown immediately.
 
-If a tagged release ever reaches GitHub but one publishing target still lags behind, use the `Re-Publish` workflow from GitHub Actions and select the affected tag, for example `v1.0.3`.
+If a tagged release ever reaches GitHub but one publishing target still lags behind, use the `Re-Publish` workflow from GitHub Actions and select the affected tag, for example `v1.0.4`.
 
 Development Run
 ---------------
@@ -156,3 +156,7 @@ Multiplayer
 -----------
 
 The mod is intended for modded multiplayer. Server and clients must use the same Minecraft, NeoForge, and mod versions. JEI is optional for the server, but clients need JEI installed if they want to use JEI-specific features.
+
+Detailed documentation for multiplayer behavior and quantified server impact is available in [docs/MULTIPLAYER_SERVER_IMPACT.md](docs/MULTIPLAYER_SERVER_IMPACT.md).
+
+The passive panel refresh interval and client-side search debounce are configurable through the generated NeoForge config files.

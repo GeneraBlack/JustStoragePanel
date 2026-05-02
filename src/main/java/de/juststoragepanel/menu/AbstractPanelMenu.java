@@ -1,5 +1,6 @@
 package de.juststoragepanel.menu;
 
+import de.juststoragepanel.config.JustStoragePanelConfig;
 import de.juststoragepanel.network.StorageNetwork;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -42,6 +43,7 @@ public abstract class AbstractPanelMenu extends AbstractContainerMenu {
     private int page = 0;
     private int maxPage = 1;
     private long lastRefreshGameTime = Long.MIN_VALUE;
+    private boolean displayDirty = true;
     private String searchQuery = "";
 
     protected AbstractPanelMenu(MenuType<?> menuType, int containerId, Inventory playerInventory, BlockPos panelPos) {
@@ -61,9 +63,10 @@ public abstract class AbstractPanelMenu extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
-        if (!this.level.isClientSide && this.level.getGameTime() != this.lastRefreshGameTime) {
+        if (!this.level.isClientSide && this.shouldRunPassiveRefresh(this.level.getGameTime())) {
             this.refreshDisplay();
             this.lastRefreshGameTime = this.level.getGameTime();
+            this.displayDirty = false;
         }
 
         super.broadcastChanges();
@@ -225,6 +228,7 @@ public abstract class AbstractPanelMenu extends AbstractContainerMenu {
         if (!this.level.isClientSide) {
             this.refreshDisplay();
             this.lastRefreshGameTime = this.level.getGameTime();
+            this.displayDirty = false;
             this.broadcastChanges();
         }
     }
@@ -302,12 +306,36 @@ public abstract class AbstractPanelMenu extends AbstractContainerMenu {
                 StorageNetwork.NetworkItem item = items.get(itemIndex);
                 ItemStack displayStack = item.displayStack().copy();
                 displayStack.setCount(1);
-                this.displayContainer.setItem(slotIndex, displayStack);
-                this.displayCounts[slotIndex] = item.count();
+                this.setDisplayEntry(slotIndex, displayStack, item.count());
             } else {
-                this.displayContainer.setItem(slotIndex, ItemStack.EMPTY);
-                this.displayCounts[slotIndex] = 0;
+                this.setDisplayEntry(slotIndex, ItemStack.EMPTY, 0);
             }
+        }
+    }
+
+    protected final void markDisplayDirty() {
+        if (!this.level.isClientSide) {
+            this.displayDirty = true;
+        }
+    }
+
+    private boolean shouldRunPassiveRefresh(long gameTime) {
+        long refreshInterval = JustStoragePanelConfig.getPassiveRefreshIntervalTicks();
+        return this.displayDirty
+                || this.lastRefreshGameTime == Long.MIN_VALUE
+            || gameTime - this.lastRefreshGameTime >= refreshInterval;
+    }
+
+    private void setDisplayEntry(int slotIndex, ItemStack displayStack, int count) {
+        ItemStack current = this.displayContainer.getItem(slotIndex);
+        boolean sameStack = current.isEmpty() == displayStack.isEmpty()
+                && (current.isEmpty() || ItemStack.isSameItemSameComponents(current, displayStack));
+        if (!sameStack) {
+            this.displayContainer.setItem(slotIndex, displayStack);
+        }
+
+        if (this.displayCounts[slotIndex] != count) {
+            this.displayCounts[slotIndex] = count;
         }
     }
 

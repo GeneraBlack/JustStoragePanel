@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.4
+
+- Optimized network discovery with a cached topology per level and panel origin.
+- Switched cache invalidation from whole-level clearing to position-targeted invalidation using a reverse index.
+- Reduced passive panel refresh pressure and added configurable server refresh and client search debounce settings.
+- Added multiplayer server impact documentation and updated README guidance for performance-sensitive setups.
+
 ## 1.0.3
 
 - Published a clean follow-up release that includes the decoupled GitHub release workflow.

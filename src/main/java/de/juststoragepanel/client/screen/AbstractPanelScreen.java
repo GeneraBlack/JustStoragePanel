@@ -1,5 +1,6 @@
 package de.juststoragepanel.client.screen;
 
+import de.juststoragepanel.config.JustStoragePanelConfig;
 import de.juststoragepanel.menu.AbstractPanelMenu;
 import de.juststoragepanel.menu.NetworkDisplaySlot;
 import de.juststoragepanel.network.PanelSearchPayload;
@@ -20,6 +21,9 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
     private Button previousPageButton;
     private Button nextPageButton;
     private EditBox searchBox;
+    private int pendingSearchTicks = -1;
+    private String pendingSearchQuery = "";
+    private String lastSentSearchQuery = "";
 
     protected AbstractPanelScreen(T menu, Inventory playerInventory, Component title, int imageWidth, int imageHeight) {
         super(menu, playerInventory, title);
@@ -45,6 +49,8 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
         this.searchBox.setTextColorUneditable(0xFF9AA7B4);
         this.searchBox.setHint(Component.translatable("screen.juststoragepanel.search_hint"));
         this.searchBox.setValue(this.menu.getSearchQuery());
+        this.pendingSearchQuery = this.menu.getSearchQuery();
+        this.lastSentSearchQuery = this.menu.getSearchQuery();
         this.searchBox.setResponder(this::onSearchChanged);
         this.updatePageButtons();
     }
@@ -53,6 +59,13 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
     protected void containerTick() {
         super.containerTick();
         this.updatePageButtons();
+        this.flushPendingSearch();
+    }
+
+    @Override
+    public void removed() {
+        this.flushPendingSearchImmediately();
+        super.removed();
     }
 
     @Override
@@ -130,7 +143,38 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
     }
 
     private void onSearchChanged(String query) {
-        PacketDistributor.sendToServer(new PanelSearchPayload(this.menu.containerId, query));
+        this.pendingSearchQuery = query;
+        this.pendingSearchTicks = JustStoragePanelConfig.getSearchDebounceTicks();
+        if (this.pendingSearchTicks == 0) {
+            this.flushPendingSearchImmediately();
+        }
+    }
+
+    private void flushPendingSearch() {
+        if (this.pendingSearchTicks < 0) {
+            return;
+        }
+
+        if (this.pendingSearchTicks > 0) {
+            this.pendingSearchTicks--;
+            return;
+        }
+
+        this.flushPendingSearchImmediately();
+    }
+
+    private void flushPendingSearchImmediately() {
+        if (this.pendingSearchTicks < 0) {
+            return;
+        }
+
+        this.pendingSearchTicks = -1;
+        if (this.pendingSearchQuery.equals(this.lastSentSearchQuery)) {
+            return;
+        }
+
+        this.lastSentSearchQuery = this.pendingSearchQuery;
+        PacketDistributor.sendToServer(new PanelSearchPayload(this.menu.containerId, this.pendingSearchQuery));
     }
 
     private String formatCount(int count) {
