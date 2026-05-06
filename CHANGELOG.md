@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+- Ported the public release line to Minecraft 1.21.5 and NeoForge 21.5.97.
+- Updated JEI integration to JEI 21.4.0.27 and adapted Crafting Panel recipe transfer to the current 1.21.5 APIs.
+- Updated block registration and item definition resources for the 1.21.5 registry and client item model changes.
+- Validated the release line with a full Gradle build, client startup, JEI startup, and clean in-game smoke tests for panels and cables.
+- Kept the gameplay feature set unchanged; this release is the 1.21.5 compatibility and polish line.
+
 ## 1.0.4
 
 - Optimized network discovery with a cached topology per level and panel origin.
