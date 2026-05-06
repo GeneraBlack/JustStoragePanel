@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0
+
+- Ported the next public release line to Minecraft 1.21.8 and NeoForge 21.8.53.
+- Updated JEI integration to JEI 24.2.0.6 and adapted client-to-server payload sends to NeoForge's ClientPacketDistributor API.
+- Validated the line with compileJava, processResources, a full Gradle build, and a successful 1.21.8 client start with JEI initialization.
+- Kept the gameplay feature set unchanged; this release is the 1.21.8 compatibility line.
+
 ## 1.1.0
 
 - Ported the public release line to Minecraft 1.21.5 and NeoForge 21.5.97.

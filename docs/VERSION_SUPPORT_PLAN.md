@@ -8,7 +8,7 @@ This document defines which Minecraft and NeoForge lines Just Storage Panel shou
 | --- | --- | --- | --- | --- |
 | Current maintenance | 1.21.1 | 21.1.x | Stable baseline | Current public release line. |
 | Release-ready | 1.21.5 | 21.5.x | Primary expansion target | Build, client, JEI, and in-game validation completed. |
-| Planned follow-up | 1.21.8 | 21.8.x | Late 1.21.x coverage | Good additional reach without jumping into the 21.9 transfer rework immediately. |
+| Local validation complete | 1.21.8 | 21.8.x | Late 1.21.x coverage | Build and client startup validated; release docs are prepared on the branch. |
 | Deferred | 1.21.11 | 21.11.x | Revisit after API migration | NeoForge 21.9+ transfer API changes should be handled first. |
 
 ## Versions To Skip For Now
@@ -102,6 +102,48 @@ This document defines which Minecraft and NeoForge lines Just Storage Panel shou
 4. Let release.yml create the GitHub release and publish Maven and CurseForge artifacts.
 5. Verify CurseForge with the game version filter set to 1.21.5 and the loader filter set to NeoForge.
 6. If one publishing target fails while the tag is otherwise correct, rerun publication with republish.yml against v1.1.0-mc1.21.5.
+
+## Second Concrete Release Line: 1.21.8
+
+### Target build values
+
+| Setting | Target value | Where |
+| --- | --- | --- |
+| Gradle wrapper | 9.2.1 | gradle/wrapper/gradle-wrapper.properties |
+| userdev plugin | 7.1.25 | build.gradle |
+| neogradle.subsystems.parchment.minecraftVersion | 1.21.8 | gradle.properties |
+| neogradle.subsystems.parchment.mappingsVersion | 2025.09.14 | gradle.properties |
+| minecraft_version | 1.21.8 | gradle.properties |
+| minecraft_version_range | [1.21.8] | gradle.properties |
+| neo_version | 21.8.53 | gradle.properties |
+| jei_version | 24.2.0.6 | gradle.properties |
+| loader_version_range | [1,) | gradle.properties |
+| mod_version for first release | 1.2.0 | gradle.properties |
+
+### Branch plan
+
+1. Create release/1.21.8 from the verified release/1.21.5 line.
+2. Apply the version bump and any NeoForge 21.8 API migrations.
+3. Validate compileJava, processResources, and the full build on JDK 21.
+4. Verify that runClient reaches a playable integrated world and JEI initializes cleanly.
+5. Tag the first release on that branch as v1.2.0-mc1.21.8.
+
+### Readiness status
+
+- The 1.21.8 dependency line is now active in gradle.properties with mod_version 1.2.0.
+- compileJava, processResources, and the full Gradle build complete successfully on JDK 21.
+- runClient reaches an integrated world and JEI fully initializes on NeoForge 21.8.53.
+- The only required code change beyond the version bump was moving serverbound payload sends to ClientPacketDistributor.
+- A manual in-game feature smoke test is still recommended before the public tag is pushed.
+
+### Release steps for 1.21.8
+
+1. Push release/1.21.8 and let build.yml validate the branch.
+2. Re-run the short in-game smoke test on Access Panel, Crafting Panel, Logic Cable, and JEI transfer.
+3. Confirm build artifacts are named with the 1.21.8 artifact suffix.
+4. Create and push the tag v1.2.0-mc1.21.8.
+5. Let release.yml create the GitHub release and publish Maven and CurseForge artifacts.
+6. Verify CurseForge with the game version filter set to 1.21.8 and the loader filter set to NeoForge.
 
 ## Release Checklist Per Version Line
 
