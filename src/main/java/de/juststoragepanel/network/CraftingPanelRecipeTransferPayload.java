@@ -7,14 +7,14 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record CraftingPanelRecipeTransferPayload(int containerId, boolean maxTransfer, List<ItemStack> ingredients) implements CustomPacketPayload {
-    public static final Type<CraftingPanelRecipeTransferPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JustStoragePanel.MODID, "crafting_panel_recipe_transfer"));
+    public static final Type<CraftingPanelRecipeTransferPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(JustStoragePanel.MODID, "crafting_panel_recipe_transfer"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CraftingPanelRecipeTransferPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
             CraftingPanelRecipeTransferPayload::containerId,

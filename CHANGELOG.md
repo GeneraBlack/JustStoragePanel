@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0
+
+- Ported the next public release line to Minecraft 1.21.11 and NeoForge 21.11.42.
+- Migrated the development tooling for this line from NeoGradle userdev to ModDevGradle 2.0.141.
+- Updated JEI integration to JEI 27.4.0.22 and ported payload identifiers from `ResourceLocation` to `Identifier`.
+- Moved the storage network from the legacy `IItemHandler` bridge to NeoForge's transfer API using `ResourceHandler<ItemResource>`, `ItemUtil`, and transactional extraction.
+- Validated the line with a clean Gradle build, a successful client start with JEI initialized, and a dedicated server startup through to the ready state.
+- Kept the gameplay feature set unchanged; this release is the 1.21.11 compatibility and tooling-refresh line.
+
 ## 1.2.0
 
 - Ported the next public release line to Minecraft 1.21.8 and NeoForge 21.8.53.

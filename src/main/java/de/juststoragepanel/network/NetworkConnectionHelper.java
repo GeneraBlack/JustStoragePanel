@@ -9,7 +9,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
 public final class NetworkConnectionHelper {
@@ -40,10 +41,10 @@ public final class NetworkConnectionHelper {
     }
 
     @Nullable
-    public static IItemHandler resolveHandler(Level level, BlockPos pos, @Nullable Direction side) {
+    public static ResourceHandler<ItemResource> resolveHandler(Level level, BlockPos pos, @Nullable Direction side) {
         BlockState state = level.getBlockState(pos);
         if (isSophisticatedStorageAccessBlock(state)) {
-            IItemHandler prioritized = resolveSophisticatedStorageHandler(level, pos, side);
+            ResourceHandler<ItemResource> prioritized = resolveSophisticatedStorageHandler(level, pos, side);
             if (prioritized != null) {
                 return prioritized;
             }
@@ -63,15 +64,15 @@ public final class NetworkConnectionHelper {
     }
 
     @Nullable
-    private static IItemHandler resolveSophisticatedStorageHandler(Level level, BlockPos pos, @Nullable Direction side) {
+    private static ResourceHandler<ItemResource> resolveSophisticatedStorageHandler(Level level, BlockPos pos, @Nullable Direction side) {
         if (side != null) {
-            IItemHandler sided = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side);
+            ResourceHandler<ItemResource> sided = level.getCapability(Capabilities.Item.BLOCK, pos, side);
             if (sided != null) {
                 return sided;
             }
         }
 
-        IItemHandler unsided = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+        ResourceHandler<ItemResource> unsided = level.getCapability(Capabilities.Item.BLOCK, pos, null);
         if (unsided != null) {
             return unsided;
         }
@@ -81,7 +82,7 @@ public final class NetworkConnectionHelper {
                 continue;
             }
 
-            IItemHandler directional = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, direction);
+            ResourceHandler<ItemResource> directional = level.getCapability(Capabilities.Item.BLOCK, pos, direction);
             if (directional != null) {
                 return directional;
             }
@@ -91,10 +92,10 @@ public final class NetworkConnectionHelper {
     }
 
     @Nullable
-    private static IItemHandler resolveDefaultHandler(Level level, BlockPos pos, @Nullable Direction side) {
-        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, side);
+    private static ResourceHandler<ItemResource> resolveDefaultHandler(Level level, BlockPos pos, @Nullable Direction side) {
+        ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, pos, side);
         if (handler == null && side != null) {
-            handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+            handler = level.getCapability(Capabilities.Item.BLOCK, pos, null);
         }
         return handler;
     }

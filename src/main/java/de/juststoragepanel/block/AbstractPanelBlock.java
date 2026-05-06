@@ -61,7 +61,7 @@ public abstract class AbstractPanelBlock extends HorizontalDirectionalBlock {
     protected abstract AbstractContainerMenu createMenu(int containerId, Inventory inventory, BlockPos pos);
 
     private InteractionResult openPanel(BlockState state, Level level, BlockPos pos, Player player) {
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             MenuProvider provider = state.getMenuProvider(level, pos);
             if (provider != null) {
                 serverPlayer.openMenu(provider, pos);

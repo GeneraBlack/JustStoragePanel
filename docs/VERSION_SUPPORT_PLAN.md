@@ -1,162 +1,80 @@
 # Version Support Plan
 
-This document defines which Minecraft and NeoForge lines Just Storage Panel should target next and how releases should be cut for each line.
+This document tracks the active Just Storage Panel release lines across Minecraft 1.21.x and defines how new releases should be cut.
 
-## Target Lines
+## Current Support Matrix
 
-| Status | Minecraft | NeoForge | Purpose | Notes |
-| --- | --- | --- | --- | --- |
-| Current maintenance | 1.21.1 | 21.1.x | Stable baseline | Current public release line. |
-| Release-ready | 1.21.5 | 21.5.x | Primary expansion target | Build, client, JEI, and in-game validation completed. |
-| Local validation complete | 1.21.8 | 21.8.x | Late 1.21.x coverage | Build and client startup validated; release docs are prepared on the branch. |
-| Deferred | 1.21.11 | 21.11.x | Revisit after API migration | NeoForge 21.9+ transfer API changes should be handled first. |
+| Status | Minecraft | NeoForge | Branch | Version train | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Maintenance baseline | 1.21.1 | 21.1.218 | release/1.21.1 | 1.0.x | Initial public line; hotfix-only if needed. |
+| Released compatibility line | 1.21.5 | 21.5.97 | release/1.21.5 | 1.1.x | Public port line already validated and released. |
+| Released compatibility line | 1.21.8 | 21.8.53 | release/1.21.8 | 1.2.x | Public port line already validated and released. |
+| Current release line | 1.21.11 | 21.11.42 | release/1.21.11 | 1.3.x | Primary maintained 1.21.x line on ModDevGradle. |
 
-## Versions To Skip For Now
+## Current Recommendation
 
-- Do not create a dedicated 1.21.4 line unless a modpack or server partner explicitly asks for it.
-- Do not jump straight from 1.21.1 to 1.21.11 until the inventory transfer layer is migrated away from the old IItemHandler-centric assumptions.
+1. Cut new public 1.21.x releases from release/1.21.11.
+2. Keep 1.21.1 as a fallback maintenance branch only for targeted hotfixes.
+3. Patch 1.21.5 or 1.21.8 only if a real downstream pack or server still depends on them.
+4. Do not backfill a dedicated 1.21.4 line unless an external compatibility requirement appears.
+5. Reassess 1.22+ separately; do not mix that planning into the 1.21.11 release branch.
 
-## Release Order
+## Tooling Notes
 
-1. Keep 1.21.1 as the maintenance line for hotfixes and compatibility fixes.
-2. Port and release 1.21.5 as the next actively promoted line.
-3. Port and release 1.21.8 after the 1.21.5 line is stable.
-4. Reassess 1.21.11 only after the NeoForge 21.9+ transfer rework has been planned and implemented.
-
-## Branch Strategy
-
-- Use one long-lived branch per Minecraft line.
-- Recommended branch names:
-  - release/1.21.1
-  - release/1.21.5
-  - release/1.21.8
-- Keep the newest supported line as the main development branch once it becomes the primary target.
+- The 1.21.11 line uses ModDevGradle 2.0.141 instead of NeoGradle userdev.
+- The current parchment keys are `parchment_minecraft_version` and `parchment_mappings_version`.
+- JEI remains an optional dependency for the dedicated server and a client-side optional enhancement for users who want recipe transfer and GUI integration.
+- Dedicated server startup is part of the validation baseline for 1.21.11 because the storage network is intentionally multiplayer-safe and server-driven.
 
 ## Tag And Release Naming
 
-- The GitHub release workflow already triggers on tags matching v*.
+- GitHub release automation triggers on tags matching `v*`.
 - Use tags that include both the mod version and the Minecraft line.
-- Recommended tag format:
+- Recommended tag examples:
   - v1.0.5-mc1.21.1
   - v1.1.0-mc1.21.5
   - v1.2.0-mc1.21.8
-- Keep mod_version as normal semver inside the branch.
+  - v1.3.0-mc1.21.11
+- Keep `mod_version` as normal semver inside the branch.
 - Let the tag carry the Minecraft suffix so GitHub releases stay unique across version lines.
 
-## Version Trains
-
-| Minecraft line | Branch | Mod version train | First planned tag |
-| --- | --- | --- | --- |
-| 1.21.1 | release/1.21.1 | 1.0.x | v1.0.5-mc1.21.1 |
-| 1.21.5 | release/1.21.5 | 1.1.x | v1.1.0-mc1.21.5 |
-| 1.21.8 | release/1.21.8 | 1.2.x | v1.2.0-mc1.21.8 |
-
-## First Concrete Release Line: 1.21.5
-
-### Target build values
+## 1.21.11 Release Values
 
 | Setting | Target value | Where |
 | --- | --- | --- |
 | Gradle wrapper | 9.2.1 | gradle/wrapper/gradle-wrapper.properties |
-| userdev plugin | 7.1.25 | build.gradle |
-| neogradle.subsystems.parchment.minecraftVersion | 1.21.5 | gradle.properties |
-| neogradle.subsystems.parchment.mappingsVersion | 2025.06.15 | gradle.properties |
-| minecraft_version | 1.21.5 | gradle.properties |
-| minecraft_version_range | [1.21.5] | gradle.properties |
-| neo_version | 21.5.97 | gradle.properties |
-| jei_version | 21.4.0.27 | gradle.properties |
+| ModDevGradle plugin | 2.0.141 | build.gradle |
+| parchment_minecraft_version | 1.21.11 | gradle.properties |
+| parchment_mappings_version | 2025.12.20 | gradle.properties |
+| minecraft_version | 1.21.11 | gradle.properties |
+| minecraft_version_range | [1.21.11] | gradle.properties |
+| neo_version | 21.11.42 | gradle.properties |
+| jei_version | 27.4.0.22 | gradle.properties |
 | loader_version_range | [1,) | gradle.properties |
-| mod_version for first release | 1.1.0 | gradle.properties |
+| mod_version for first 1.21.11 release | 1.3.0 | gradle.properties |
 
-### Branch plan
+## 1.21.11 Validation Baseline
 
-1. Merge any remaining 1.21.1-only fixes first.
-2. Create release/1.21.5 from the current main branch.
-3. Perform the port on release/1.21.5 until build.yml is green.
-4. Tag the first release on that branch as v1.1.0-mc1.21.5.
-5. Keep release/1.21.1 open for hotfixes as the 1.0.x line.
-6. After 1.21.5 is stable, use it as the base for the later 1.21.8 line.
-
-### Readiness status
-
-- The 1.21.5 dependency line is now active in gradle.properties with mod_version 1.1.0.
-- compileJava, processResources, and the full Gradle build complete successfully on JDK 21.
-- runClient reaches a playable integrated world with JEI fully initialized.
-- In-game smoke tests for Access Panel, Crafting Panel, Logic Cable, and JEI transfer were completed successfully.
-- The new assets/juststoragepanel/items definitions required for 1.21.5 are present.
-
-### Porting checklist for this repo
-
-1. Update the 1.21.5 property values listed above.
-2. Adjust block API call sites that still assume the old 1.21.1 signatures, especially LogicCableBlock.updateShape.
-3. Add client item definition JSON files under assets/juststoragepanel/items/ for access_panel, crafting_panel, and logic_cable. The repo currently only contains legacy models/item JSONs.
-4. Re-run the full build and confirm the client, server, and data runs still initialize cleanly.
-5. Update README requirements from 1.21.1 / 21.1.218 to the 1.21.5 line.
-6. Add a CHANGELOG entry for the new line and note whether gameplay changed or the release is a compatibility port.
-
-### Release steps for 1.21.5
-
-1. Push release/1.21.5 and let build.yml validate the branch.
-2. Confirm build artifacts are named with the 1.21.5 artifact suffix.
-3. Create and push the tag v1.1.0-mc1.21.5.
-4. Let release.yml create the GitHub release and publish Maven and CurseForge artifacts.
-5. Verify CurseForge with the game version filter set to 1.21.5 and the loader filter set to NeoForge.
-6. If one publishing target fails while the tag is otherwise correct, rerun publication with republish.yml against v1.1.0-mc1.21.5.
-
-## Second Concrete Release Line: 1.21.8
-
-### Target build values
-
-| Setting | Target value | Where |
-| --- | --- | --- |
-| Gradle wrapper | 9.2.1 | gradle/wrapper/gradle-wrapper.properties |
-| userdev plugin | 7.1.25 | build.gradle |
-| neogradle.subsystems.parchment.minecraftVersion | 1.21.8 | gradle.properties |
-| neogradle.subsystems.parchment.mappingsVersion | 2025.09.14 | gradle.properties |
-| minecraft_version | 1.21.8 | gradle.properties |
-| minecraft_version_range | [1.21.8] | gradle.properties |
-| neo_version | 21.8.53 | gradle.properties |
-| jei_version | 24.2.0.6 | gradle.properties |
-| loader_version_range | [1,) | gradle.properties |
-| mod_version for first release | 1.2.0 | gradle.properties |
-
-### Branch plan
-
-1. Create release/1.21.8 from the verified release/1.21.5 line.
-2. Apply the version bump and any NeoForge 21.8 API migrations.
-3. Validate compileJava, processResources, and the full build on JDK 21.
-4. Verify that runClient reaches a playable integrated world and JEI initializes cleanly.
-5. Tag the first release on that branch as v1.2.0-mc1.21.8.
-
-### Readiness status
-
-- The 1.21.8 dependency line is now active in gradle.properties with mod_version 1.2.0.
-- compileJava, processResources, and the full Gradle build complete successfully on JDK 21.
-- runClient reaches an integrated world and JEI fully initializes on NeoForge 21.8.53.
-- The only required code change beyond the version bump was moving serverbound payload sends to ClientPacketDistributor.
-- A manual in-game feature smoke test is still recommended before the public tag is pushed.
-
-### Release steps for 1.21.8
-
-1. Push release/1.21.8 and let build.yml validate the branch.
-2. Re-run the short in-game smoke test on Access Panel, Crafting Panel, Logic Cable, and JEI transfer.
-3. Confirm build artifacts are named with the 1.21.8 artifact suffix.
-4. Create and push the tag v1.2.0-mc1.21.8.
-5. Let release.yml create the GitHub release and publish Maven and CurseForge artifacts.
-6. Verify CurseForge with the game version filter set to 1.21.8 and the loader filter set to NeoForge.
+- `clean build --no-configuration-cache` completes successfully on JDK 21.
+- `runClient` starts successfully with JEI present.
+- `runServer` reaches the dedicated server ready state without a server-side classloading or payload registration failure.
+- The storage network now uses NeoForge's transfer API directly instead of the old `IItemHandler` bridge.
+- Multiplayer behavior remains server-driven and the dedicated server path is considered part of release readiness.
 
 ## Release Checklist Per Version Line
 
-1. Update minecraft_version, minecraft_version_range, neo_version, and dependency versions in gradle.properties.
-2. Adjust code for the target line's API changes.
-3. Run the full Gradle build for that branch.
-4. Update README and CHANGELOG if player-facing behavior or requirements changed.
-5. Push a version tag using the recommended tag format.
-6. Let release.yml publish the artifacts.
-7. If Maven or CurseForge needs to be rerun, use republish.yml against the exact tag.
+1. Update `minecraft_version`, `minecraft_version_range`, `neo_version`, dependency versions, and `mod_version` in gradle.properties.
+2. Confirm build tooling is correct for the target line; for 1.21.11 this means ModDevGradle, not NeoGradle userdev.
+3. Run a clean Gradle build for the branch.
+4. Run `runClient` and confirm the mod and JEI initialize cleanly.
+5. Run `runServer` whenever server-sensitive code changed or when preparing a public 1.21.11 release.
+6. Update README and CHANGELOG for the exact Minecraft and NeoForge line being tagged.
+7. Push a version tag using the recommended tag format.
+8. Let release.yml publish the artifacts.
+9. If Maven or CurseForge needs to be rerun, use republish.yml against the exact tag.
 
-## Practical Recommendation
+## Historical Notes
 
-- Support three lines in this order: 1.21.1, 1.21.5, and 1.21.8.
-- Treat 1.21.1 as maintenance-only after 1.21.5 ships.
-- Treat 1.21.8 as the last 1.21.x line before the larger 21.9+ migration work.
+- 1.21.5 was the first post-1.21.1 compatibility line and introduced the required client item definition resources for the newer item model layout.
+- 1.21.8 was the last release line before the NeoForge 21.9+ transfer and tooling changes, and it only required a relatively small network send adaptation.
+- 1.21.11 is the first line in this repository that required both the ModDevGradle migration and the direct transfer-API cleanup in the storage network.

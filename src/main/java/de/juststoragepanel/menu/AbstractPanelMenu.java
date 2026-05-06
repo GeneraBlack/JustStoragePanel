@@ -63,7 +63,7 @@ public abstract class AbstractPanelMenu extends AbstractContainerMenu {
 
     @Override
     public void broadcastChanges() {
-        if (!this.level.isClientSide && this.shouldRunPassiveRefresh(this.level.getGameTime())) {
+        if (!this.level.isClientSide() && this.shouldRunPassiveRefresh(this.level.getGameTime())) {
             this.refreshDisplay();
             this.lastRefreshGameTime = this.level.getGameTime();
             this.displayDirty = false;
@@ -225,7 +225,7 @@ public abstract class AbstractPanelMenu extends AbstractContainerMenu {
     }
 
     protected final void refreshNow() {
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             this.refreshDisplay();
             this.lastRefreshGameTime = this.level.getGameTime();
             this.displayDirty = false;
@@ -314,7 +314,7 @@ public abstract class AbstractPanelMenu extends AbstractContainerMenu {
     }
 
     protected final void markDisplayDirty() {
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             this.displayDirty = true;
         }
     }

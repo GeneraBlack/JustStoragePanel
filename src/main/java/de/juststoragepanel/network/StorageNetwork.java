@@ -22,7 +22,10 @@ import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.common.util.ItemStackMap;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
 
 public final class StorageNetwork {
@@ -39,7 +42,7 @@ public final class StorageNetwork {
 
     public static StorageNetwork discover(Level level, BlockPos origin) {
         BlockPos cacheKey = origin.immutable();
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return new StorageNetwork(level, discoverTopology(level, cacheKey).endpoints());
         }
 
@@ -120,13 +123,13 @@ public final class StorageNetwork {
         Map<ItemStack, MutableNetworkItem> merged = ItemStackMap.createTypeAndTagMap();
 
         for (Endpoint endpoint : this.endpoints) {
-            IItemHandler handler = endpoint.resolve(this.level);
+            ResourceHandler<ItemResource> handler = endpoint.resolve(this.level);
             if (handler == null) {
                 continue;
             }
 
-            for (int slot = 0; slot < handler.getSlots(); slot++) {
-                ItemStack stack = handler.getStackInSlot(slot);
+            for (int slot = 0; slot < handler.size(); slot++) {
+                ItemStack stack = ItemUtil.getStack(handler, slot);
                 if (stack.isEmpty()) {
                     continue;
                 }
@@ -151,16 +154,14 @@ public final class StorageNetwork {
 
         ItemStack remaining = stack.copy();
         for (Endpoint endpoint : this.endpoints) {
-            IItemHandler handler = endpoint.resolve(this.level);
+            ResourceHandler<ItemResource> handler = endpoint.resolve(this.level);
             if (handler == null) {
                 continue;
             }
 
-            for (int slot = 0; slot < handler.getSlots(); slot++) {
-                remaining = handler.insertItem(slot, remaining, false);
-                if (remaining.isEmpty()) {
-                    return ItemStack.EMPTY;
-                }
+            remaining = ItemUtil.insertItemReturnRemaining(handler, remaining, false, null);
+            if (remaining.isEmpty()) {
+                return ItemStack.EMPTY;
             }
         }
 
@@ -173,31 +174,30 @@ public final class StorageNetwork {
         }
 
         ItemStack extractedTotal = ItemStack.EMPTY;
+        ItemResource resourceTemplate = ItemResource.of(template);
         int remaining = amount;
         for (Endpoint endpoint : this.endpoints) {
-            IItemHandler handler = endpoint.resolve(this.level);
+            ResourceHandler<ItemResource> handler = endpoint.resolve(this.level);
             if (handler == null) {
                 continue;
             }
 
-            for (int slot = 0; slot < handler.getSlots(); slot++) {
-                ItemStack inSlot = handler.getStackInSlot(slot);
-                if (inSlot.isEmpty() || !ItemStack.isSameItemSameComponents(inSlot, template)) {
+            try (var transaction = Transaction.openRoot()) {
+                int extractedAmount = handler.extract(resourceTemplate, remaining, transaction);
+                if (extractedAmount <= 0) {
                     continue;
                 }
 
-                ItemStack extracted = handler.extractItem(slot, remaining, false);
-                if (extracted.isEmpty()) {
-                    continue;
-                }
+                transaction.commit();
 
+                ItemStack extracted = resourceTemplate.toStack(extractedAmount);
                 if (extractedTotal.isEmpty()) {
                     extractedTotal = extracted;
                 } else {
                     extractedTotal.grow(extracted.getCount());
                 }
 
-                remaining -= extracted.getCount();
+                remaining -= extractedAmount;
                 if (remaining <= 0) {
                     return extractedTotal;
                 }
@@ -221,7 +221,7 @@ public final class StorageNetwork {
     }
 
     private static void invalidateAt(LevelAccessor levelAccessor, BlockPos changedPos) {
-        if (!(levelAccessor instanceof Level level) || level.isClientSide) {
+        if (!(levelAccessor instanceof Level level) || level.isClientSide()) {
             return;
         }
 
@@ -259,7 +259,7 @@ public final class StorageNetwork {
 
     private record Endpoint(BlockPos pos, @Nullable Direction side) {
         @Nullable
-        private IItemHandler resolve(Level level) {
+        private ResourceHandler<ItemResource> resolve(Level level) {
             return NetworkConnectionHelper.resolveHandler(level, this.pos, this.side);
         }
     }
