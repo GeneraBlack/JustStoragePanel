@@ -1,7 +1,8 @@
 {
   "ambientocclusion": false,
   "textures": {
-    "cable": "juststoragepanel:block/logic_cable"
+    "cable": "juststoragepanel:block/logic_cable",
+    "particle": "juststoragepanel:block/logic_cable"
   },
   "elements": [
     {

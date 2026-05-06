@@ -6,7 +6,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -44,9 +43,9 @@ public abstract class AbstractPanelBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (hand != InteractionHand.MAIN_HAND) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         return openPanelForItem(state, level, pos, player);
@@ -69,11 +68,10 @@ public abstract class AbstractPanelBlock extends HorizontalDirectionalBlock {
             }
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
-    private ItemInteractionResult openPanelForItem(BlockState state, Level level, BlockPos pos, Player player) {
-        this.openPanel(state, level, pos, player);
-        return ItemInteractionResult.SUCCESS;
+    private InteractionResult openPanelForItem(BlockState state, Level level, BlockPos pos, Player player) {
+        return this.openPanel(state, level, pos, player);
     }
 }

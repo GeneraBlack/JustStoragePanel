@@ -235,7 +235,7 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
 
     private void updateCraftingResult(ServerLevel level) {
         CraftingInput craftingInput = this.createCraftingInput();
-        Optional<RecipeHolder<CraftingRecipe>> recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingInput, level);
+        Optional<RecipeHolder<CraftingRecipe>> recipe = level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftingInput, level);
         ItemStack result = ItemStack.EMPTY;
 
         if (recipe.isPresent()) {

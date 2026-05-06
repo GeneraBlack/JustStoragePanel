@@ -17,16 +17,19 @@ public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(JustStoragePanel.MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(JustStoragePanel.MODID);
 
-    public static final DeferredBlock<AccessPanelBlock> ACCESS_PANEL = BLOCKS.register("access_panel",
-            () -> new AccessPanelBlock(panelProperties(MapColor.METAL)));
-    public static final DeferredBlock<CraftingPanelBlock> CRAFTING_PANEL = BLOCKS.register("crafting_panel",
-            () -> new CraftingPanelBlock(panelProperties(MapColor.METAL)));
-    public static final DeferredBlock<LogicCableBlock> LOGIC_CABLE = BLOCKS.register("logic_cable",
-            () -> new LogicCableBlock(BlockBehaviour.Properties.of()
+    public static final DeferredBlock<AccessPanelBlock> ACCESS_PANEL = BLOCKS.registerBlock("access_panel",
+            AccessPanelBlock::new,
+            panelProperties(MapColor.METAL));
+    public static final DeferredBlock<CraftingPanelBlock> CRAFTING_PANEL = BLOCKS.registerBlock("crafting_panel",
+            CraftingPanelBlock::new,
+            panelProperties(MapColor.METAL));
+    public static final DeferredBlock<LogicCableBlock> LOGIC_CABLE = BLOCKS.registerBlock("logic_cable",
+            LogicCableBlock::new,
+            BlockBehaviour.Properties.of()
                     .mapColor(MapColor.COLOR_ORANGE)
                     .strength(1.0F, 4.0F)
                     .sound(SoundType.COPPER)
-                    .noOcclusion()));
+                    .noOcclusion());
 
     public static final DeferredItem<BlockItem> ACCESS_PANEL_ITEM = ITEMS.registerSimpleBlockItem("access_panel", ACCESS_PANEL);
     public static final DeferredItem<BlockItem> CRAFTING_PANEL_ITEM = ITEMS.registerSimpleBlockItem("crafting_panel", CRAFTING_PANEL);

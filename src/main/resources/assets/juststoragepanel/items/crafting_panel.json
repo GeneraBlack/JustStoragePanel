@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "juststoragepanel:item/crafting_panel"
+  }
+}
