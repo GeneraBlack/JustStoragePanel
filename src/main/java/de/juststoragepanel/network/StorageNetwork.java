@@ -22,6 +22,7 @@ import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.common.util.ItemStackMap;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
@@ -50,7 +51,7 @@ public final class StorageNetwork {
         return levelCache.get(level, cacheKey);
     }
 
-    public static void invalidateOnBlockBreak(BlockEvent.BreakEvent event) {
+    public static void invalidateOnBlockBreak(BreakBlockEvent event) {
         invalidateAt(event.getLevel(), event.getPos());
     }
 

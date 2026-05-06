@@ -2,7 +2,7 @@ package de.juststoragepanel.client.screen;
 
 import de.juststoragepanel.client.JeiClientFacade;
 import de.juststoragepanel.menu.CraftingPanelMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -31,12 +31,12 @@ public final class CraftingPanelScreen extends AbstractPanelScreen<CraftingPanel
     }
 
     @Override
-    protected void renderExtraBackground(GuiGraphics guiGraphics, int leftPos, int topPos, int mouseX, int mouseY) {
+    protected void extractExtraBackground(GuiGraphicsExtractor guiGraphics, int leftPos, int topPos, int mouseX, int mouseY) {
         this.drawPanel(guiGraphics, leftPos + 180, topPos + 16, 98, 96, 0xFF171D24, 0xFF2B333D, 0xFF11161D);
         this.drawSlotGrid(guiGraphics, leftPos + 182, topPos + 36, 3, 3);
         this.drawSlot(guiGraphics, leftPos + 240, topPos + 54);
-        guiGraphics.drawString(this.font, Component.translatable("screen.juststoragepanel.crafting"), 190, 22, 0xFFF4F1DE, false);
-        guiGraphics.drawString(this.font, Component.literal("=>"), 222, 59, 0xFFE07A5F, false);
+        guiGraphics.text(this.font, Component.translatable("screen.juststoragepanel.crafting"), 190, 22, 0xFFF4F1DE, false);
+        guiGraphics.text(this.font, Component.literal("=>"), 222, 59, 0xFFE07A5F, false);
     }
 
     private void openJeiRecipes() {

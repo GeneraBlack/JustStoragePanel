@@ -240,7 +240,7 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
 
         if (recipe.isPresent()) {
             RecipeHolder<CraftingRecipe> recipeHolder = recipe.get();
-            ItemStack assembled = recipeHolder.value().assemble(craftingInput, level.registryAccess());
+            ItemStack assembled = recipeHolder.value().assemble(craftingInput);
             if (!assembled.isEmpty() && assembled.isItemEnabled(level.enabledFeatures())) {
                 result = assembled;
             }

@@ -92,8 +92,8 @@ base {
     archivesName = "${mod_id}-${minecraft_version}"
 }
 
-// Mojang ships Java 21 to end users throughout the 1.21.x line, so mods should target Java 21.
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+// Mojang ships Java 25 to end users in 26.1.2, so mods should target Java 25.
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 java {
     withSourcesJar()
@@ -101,11 +101,6 @@ java {
 
 neoForge {
     version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     // Access transformers are detected automatically from META-INF/accesstransformer.cfg when present.
 
@@ -129,8 +124,8 @@ neoForge {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
-        clientData {
-            data()
+        data {
+            clientData()
             gameDirectory = project.file('run/clientData')
             // Since 1.21.4+, client assets and server data use separate datagen entrypoints.
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()

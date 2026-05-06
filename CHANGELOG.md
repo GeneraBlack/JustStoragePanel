@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.0
+
+- Ported the next public release line to Minecraft 26.1.2 and NeoForge 26.1.2.41-beta.
+- Updated JEI integration to JEI 29.5.0.28 and adapted the panel GUIs to Minecraft's new `GuiGraphicsExtractor` and `extract*` screen hooks.
+- Updated menu click handling to `ContainerInput`, switched block-break invalidation to `BreakBlockEvent`, and aligned crafting output assembly with the current recipe API.
+- Raised the build and CI baseline to Java 25 for the 26.1.2 line.
+- Validated the line with `compileJava`, `processResources`, a successful client start with JEI initialized, and a dedicated server startup through to the ready state.
+- Kept the gameplay feature set unchanged; this release is the 26.1.2 compatibility and tooling-refresh line.
+
 ## 1.3.0
 
 - Ported the next public release line to Minecraft 1.21.11 and NeoForge 21.11.42.
