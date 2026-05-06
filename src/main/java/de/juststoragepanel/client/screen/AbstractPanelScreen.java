@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<T> {
     private static final int DISPLAY_PANEL_WIDTH = 170;
@@ -174,7 +174,7 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
         }
 
         this.lastSentSearchQuery = this.pendingSearchQuery;
-        PacketDistributor.sendToServer(new PanelSearchPayload(this.menu.containerId, this.pendingSearchQuery));
+        ClientPacketDistributor.sendToServer(new PanelSearchPayload(this.menu.containerId, this.pendingSearchQuery));
     }
 
     private String formatCount(int count) {

@@ -20,7 +20,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public final class CraftingPanelJeiTransferHandler implements IRecipeTransferHandler<CraftingPanelMenu, RecipeHolder<CraftingRecipe>> {
     private final IRecipeTransferHandlerHelper transferHelper;
@@ -68,7 +68,7 @@ public final class CraftingPanelJeiTransferHandler implements IRecipeTransferHan
             ingredients.add(ingredient);
         }
 
-        PacketDistributor.sendToServer(new CraftingPanelRecipeTransferPayload(container.containerId, maxTransfer, ingredients));
+        ClientPacketDistributor.sendToServer(new CraftingPanelRecipeTransferPayload(container.containerId, maxTransfer, ingredients));
         return null;
     }
 }
