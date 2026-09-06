@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.0
+
+- Ported the next public release line to Minecraft 26.2 and NeoForge 26.2.0.79.
+- Updated JEI integration to JEI 30.31.0.206.
+- Validated the line with `compileJava`, `processResources`, a full Gradle build, GameTest execution, data generation, and a dedicated server startup through to the ready state.
+- Kept the gameplay feature set unchanged; this release is the 26.2 compatibility line.
+
 ## 1.4.0
 
 - Ported the next public release line to Minecraft 26.1.2 and NeoForge 26.1.2.41-beta.

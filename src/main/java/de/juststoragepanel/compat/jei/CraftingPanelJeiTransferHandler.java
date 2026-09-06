@@ -45,6 +45,7 @@ public final class CraftingPanelJeiTransferHandler implements IRecipeTransferHan
     }
 
     @Override
+    @SuppressWarnings("removal")
     public IRecipeTransferError transferRecipe(CraftingPanelMenu container, RecipeHolder<CraftingRecipe> recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer) {
         List<IRecipeSlotView> inputSlots = recipeSlots.getSlotViews(RecipeIngredientRole.INPUT);
         if (inputSlots.size() > 9) {
