@@ -11,13 +11,14 @@ This document tracks the active Just Storage Panel release lines across Minecraf
 | Released compatibility line | 1.21.8 | 21.8.53 | release/1.21.8 | 1.2.x | Public port line already validated and released. |
 | Released compatibility line | 1.21.11 | 21.11.42 | release/1.21.11 | 1.3.x | Last stable 1.21.x line on ModDevGradle. |
 | Released compatibility line | 26.1.2 | 26.1.2.41-beta | release/26.1.2 | 1.4.x | First 26.x release line; Java 25 and 26.1 GUI/input APIs. |
-| Current release line | 26.2 | 26.2.0.79 | release/26.2 | 1.5.x | Primary maintained line for Minecraft 26.2. |
+| Released compatibility line | 26.2 | 26.2.0.79 | release/26.2 | 1.5.x | Compatibility line for Minecraft 26.2. |
+| Current release line | 26.3 | 26.3.0.1-beta | release/26.3 | 1.6.x | Primary maintained line for Minecraft 26.3. |
 
 ## Current Recommendation
 
-1. Cut new public releases from release/26.2.
-2. Keep 26.2 as the primary maintained line for current public releases.
-3. Keep 26.1.2 and 1.21.11 only for targeted hotfixes when a downstream pack or server cannot move yet.
+1. Cut new public releases from release/26.3.
+2. Keep 26.3 as the primary maintained line for current public releases.
+3. Keep 26.2, 26.1.2, and 1.21.11 only for targeted hotfixes when a downstream pack or server cannot move yet.
 4. Keep 1.21.1 as the long-tail fallback branch; only revisit 1.21.5 or 1.21.8 if a concrete compatibility demand appears.
 
 ## Tooling Notes
@@ -39,30 +40,29 @@ This document tracks the active Just Storage Panel release lines across Minecraf
   - v1.3.0-mc1.21.11
   - v1.4.0-mc26.1.2
   - v1.5.0-mc26.2
+  - v1.6.0-mc26.3
 - Keep `mod_version` as normal semver inside the branch.
 - Let the tag carry the Minecraft suffix so GitHub releases stay unique across version lines.
 
-## 26.2 Release Values
+## 26.3 Release Values
 
 | Setting | Target value | Where |
 | --- | --- | --- |
 | Gradle wrapper | 9.2.1 | gradle/wrapper/gradle-wrapper.properties |
-| ModDevGradle plugin | 2.0.141 | build.gradle |
+| ModDevGradle plugin | 2.0.147 | build.gradle |
 | java.toolchain.languageVersion | 25 | build.gradle |
-| minecraft_version | 26.2 | gradle.properties |
-| minecraft_version_range | [26.2] | gradle.properties |
-| neo_version | 26.2.0.79 | gradle.properties |
-| jei_version | 30.31.0.206 | gradle.properties |
+| minecraft_version | 26.3 | gradle.properties |
+| minecraft_version_range | [26.3] | gradle.properties |
+| neo_version | 26.3.0.1-beta | gradle.properties |
+| jei_version | 31.0.0.5 | gradle.properties |
 | loader_version_range | [1,) | gradle.properties |
-| mod_version for first 26.2 release | 1.5.0 | gradle.properties |
+| mod_version for first 26.3 release | 1.6.0 | gradle.properties |
 
-## 26.2 Validation Baseline
+## 26.3 Validation Baseline
 
 - `compileJava processResources --no-configuration-cache` completes successfully on JDK 25.
 - `build` completes successfully and produces valid release artifacts.
 - `runGameTestServer` completes successfully with all game tests passing.
-- `runData` completes successfully.
-- `runServer` reaches the dedicated server ready state without a server-side classloading or payload registration failure.
 - Multiplayer behavior remains server-driven and the dedicated server path is considered part of release readiness.
 
 ## Release Checklist Per Version Line

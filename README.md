@@ -1,7 +1,7 @@
 Just Storage Panel
 ==================
 
-Just Storage Panel is a focused NeoForge mod for Minecraft 26.2 that adds a compact item network built around exactly three blocks.
+Just Storage Panel is a focused NeoForge mod for Minecraft 26.3 that adds a compact item network built around exactly three blocks.
 
 Features
 --------
@@ -27,8 +27,8 @@ JEI Integration
 Requirements
 ------------
 
-- Minecraft 26.2
-- NeoForge 26.2.0.79
+- Minecraft 26.3
+- NeoForge 26.3.0.1-beta
 - Java 25
 
 Building
@@ -45,7 +45,7 @@ This release line requires Java 25 for local development and CI.
 The generated artifact is written to build/libs and is named like this:
 
 ```text
-juststoragepanel-26.2-1.5.0.jar
+juststoragepanel-26.3-1.6.0.jar
 ```
 
 Publishing

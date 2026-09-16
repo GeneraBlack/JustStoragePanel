@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.0
+
+- Ported the next public release line to Minecraft 26.3 and NeoForge 26.3.0.1-beta.
+- Updated JEI integration to JEI 31.0.0.5.
+- Updated build tooling to net.neoforged.moddev 2.0.147.
+- Adapted block classes to Minecraft 26.3 codec removal.
+- Updated player item drop handling to include the new Prediction API.
+- Validated the line with `compileJava`, `processResources`, a full Gradle build, and GameTest execution.
+- Kept the gameplay feature set unchanged; this release is the 26.3 compatibility line.
+
 ## 1.5.0
 
 - Ported the next public release line to Minecraft 26.2 and NeoForge 26.2.0.79.

@@ -1,6 +1,5 @@
 package de.juststoragepanel.block;
 
-import com.mojang.serialization.MapCodec;
 import de.juststoragepanel.network.NetworkConnectionHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,8 +19,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public final class LogicCableBlock extends Block {
-    public static final MapCodec<LogicCableBlock> CODEC = simpleCodec(LogicCableBlock::new);
-
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST = BlockStateProperties.EAST;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
@@ -46,11 +43,6 @@ public final class LogicCableBlock extends Block {
                 .setValue(WEST, false)
                 .setValue(UP, false)
                 .setValue(DOWN, false));
-    }
-
-    @Override
-    protected MapCodec<? extends Block> codec() {
-        return CODEC;
     }
 
     @Nullable

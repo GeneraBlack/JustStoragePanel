@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.util.Prediction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -357,7 +358,7 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
                 remaining = network.insert(remaining);
             }
             if (!remaining.isEmpty()) {
-                player.drop(remaining, false);
+                player.drop(remaining, false, Prediction.SERVER_ONLY);
             }
         }
     }
