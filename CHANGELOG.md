@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1
+
+- Fixed crafting recipes by migrating from legacy `data/<modid>/recipes/` to modern `data/<modid>/recipe/` and updating to modern ingredient syntax.
+- Fixed block drops in survival mode by migrating loot tables to `data/<modid>/loot_table/blocks/`.
+- Fixed block mineability by migrating block tags to `data/minecraft/tags/block/`.
+
 ## 1.3.0
 
 - Ported the next public release line to Minecraft 1.21.11 and NeoForge 21.11.42.
