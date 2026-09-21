@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.5
+
+- Fixed crafting recipes by migrating from legacy `data/<modid>/recipes/` to modern `data/<modid>/recipe/` and updating to modern ingredient syntax.
+- Fixed block drops in survival mode by migrating loot tables to `data/<modid>/loot_table/blocks/`.
+- Fixed block mineability by migrating block tags to `data/minecraft/tags/block/`.
+- Configured CurseForge environment classification.
+
 ## 1.0.4
 
 - Optimized network discovery with a cached topology per level and panel origin.

@@ -43,7 +43,7 @@ Build the mod locally with:
 The generated artifact is written to build/libs and is named like this:
 
 ```text
-juststoragepanel-1.21.1-1.0.4.jar
+juststoragepanel-1.21.1-1.0.5.jar
 ```
 
 Publishing
