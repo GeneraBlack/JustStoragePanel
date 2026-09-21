@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.6
+
+- Fixed recipe ingredient syntax for Minecraft 1.21.1 (use object-based `{"item": ...}` format instead of 1.21.2+ bare string IDs).
+
 ## 1.0.5
 
 - Fixed crafting recipes by migrating from legacy `data/<modid>/recipes/` to modern `data/<modid>/recipe/` and updating to modern ingredient syntax.

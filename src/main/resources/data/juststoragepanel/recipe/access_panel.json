@@ -2,11 +2,21 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": "minecraft:chest",
-    "G": "minecraft:glass_pane",
-    "I": "minecraft:iron_ingot",
-    "L": "juststoragepanel:logic_cable",
-    "R": "minecraft:redstone"
+    "C": {
+      "item": "minecraft:chest"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "juststoragepanel:logic_cable"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
   },
   "pattern": [
     "IGI",

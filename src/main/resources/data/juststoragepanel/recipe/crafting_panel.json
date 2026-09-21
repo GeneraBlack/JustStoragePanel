@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "juststoragepanel:access_panel",
-    "minecraft:crafting_table",
-    "minecraft:redstone"
+    {
+      "item": "juststoragepanel:access_panel"
+    },
+    {
+      "item": "minecraft:crafting_table"
+    },
+    {
+      "item": "minecraft:redstone"
+    }
   ],
   "result": {
     "id": "juststoragepanel:crafting_panel"
