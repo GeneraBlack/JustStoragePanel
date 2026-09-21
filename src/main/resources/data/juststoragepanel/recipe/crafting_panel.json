@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "juststoragepanel:access_panel",
+    "minecraft:crafting_table",
+    "minecraft:redstone"
+  ],
+  "result": {
+    "id": "juststoragepanel:crafting_panel"
+  }
+}

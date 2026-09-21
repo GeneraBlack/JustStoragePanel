@@ -74,7 +74,19 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Publish to Maven repository
-        run: ./gradlew publish
+        shell: bash
+        run: |
+          set +e
+          output=$(./gradlew publish 2>&1)
+          status=$?
+          echo "$output"
+          if [ $status -ne 0 ]; then
+            if echo "$output" | grep -q "status code 409"; then
+              echo "Package is already published in Maven repository (409 Conflict). Marking as successful."
+              exit 0
+            fi
+            exit $status
+          fi
 
   publish-curseforge:
     needs: build
