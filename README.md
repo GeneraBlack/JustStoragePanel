@@ -45,7 +45,7 @@ This release line requires Java 25 for local development and CI.
 The generated artifact is written to build/libs and is named like this:
 
 ```text
-juststoragepanel-26.3-1.6.0.jar
+juststoragepanel-26.3-1.6.1.jar
 ```
 
 Publishing
