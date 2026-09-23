@@ -152,15 +152,15 @@ public abstract class AbstractPanelMenu extends AbstractContainerMenu {
         return this.playerInventoryStart >= 0 && slotIndex >= this.playerInventoryStart && slotIndex < this.slots.size();
     }
 
-    protected final int getPlayerInventoryStart() {
+    public final int getPlayerInventoryStart() {
         return this.playerInventoryStart;
     }
 
-    protected final int getHotbarStart() {
+    public final int getHotbarStart() {
         return this.hotbarStart;
     }
 
-    protected final int getPlayerInventoryEnd() {
+    public final int getPlayerInventoryEnd() {
         return this.slots.size();
     }
 
