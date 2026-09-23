@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.7
+
+- Fixed JEI recipe transfer slot mapping: recipes with empty slots or dimensions smaller than 3x3 (e.g. chests, torches, buckets) now map directly to the correct 3x3 crafting grid positions.
+- Fixed item loss / "eating materials" in Crafting Panel: recipe transfers are now atomic and calculate required complete sets prior to extraction; transfers will never consume or delete partial sets.
+- Mismatched or excess crafting grid items during recipe transfers or on panel close are now safely returned to the connected Storage Network.
+- Shift-clicking items in player inventory while inside Crafting Panel now deposits them directly into the Storage Network rather than into the crafting grid.
+
 ## 1.0.6
 
 - Fixed recipe ingredient syntax for Minecraft 1.21.1 (use object-based `{"item": ...}` format instead of 1.21.2+ bare string IDs).
