@@ -208,6 +208,29 @@ public final class StorageNetwork {
         return extractedTotal;
     }
 
+    public int count(ItemStack template) {
+        if (template.isEmpty()) {
+            return 0;
+        }
+
+        int total = 0;
+        for (Endpoint endpoint : this.endpoints) {
+            ResourceHandler<ItemResource> handler = endpoint.resolve(this.level);
+            if (handler == null) {
+                continue;
+            }
+
+            for (int slot = 0; slot < handler.size(); slot++) {
+                ItemStack inSlot = ItemUtil.getStack(handler, slot);
+                if (!inSlot.isEmpty() && ItemStack.isSameItemSameComponents(inSlot, template)) {
+                    total += inSlot.getCount();
+                }
+            }
+        }
+
+        return total;
+    }
+
     private static void mergeStack(Map<ItemStack, MutableNetworkItem> merged, ItemStack stack) {
         ItemStack displayStack = stack.copy();
         displayStack.setCount(1);

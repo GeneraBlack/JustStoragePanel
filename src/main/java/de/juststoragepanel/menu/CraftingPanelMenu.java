@@ -5,7 +5,9 @@ import de.juststoragepanel.registry.ModMenus;
 import de.juststoragepanel.network.StorageNetwork;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import net.neoforged.neoforge.common.util.ItemStackMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -86,8 +88,15 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
-        if (!player.level().isClientSide()) {
-            this.clearContainer(player, this.craftSlots);
+        if (!player.level().isClientSide() && player instanceof ServerPlayer serverPlayer) {
+            StorageNetwork network = StorageNetwork.discover(this.level, this.panelPos);
+            for (int slot = 0; slot < this.craftSlots.getContainerSize(); slot++) {
+                ItemStack stack = this.craftSlots.getItem(slot);
+                if (!stack.isEmpty()) {
+                    this.craftSlots.setItem(slot, ItemStack.EMPTY);
+                    this.returnStackSafely(serverPlayer, network, stack);
+                }
+            }
         }
     }
 
@@ -108,6 +117,9 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
 
             slot.onQuickCraft(stackInSlot, original);
             slot.onTake(player, stackInSlot);
+            if (!stackInSlot.isEmpty()) {
+                this.insertIntoNetwork(stackInSlot);
+            }
             return original;
         }
 
@@ -130,10 +142,6 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
 
         if (slotIndex >= this.craftStartIndex && slotIndex < this.craftEndIndex) {
             if (!this.moveItemStackTo(stackInSlot, this.getPlayerInventoryStart(), this.getPlayerInventoryEnd(), false)) {
-                return ItemStack.EMPTY;
-            }
-        } else if (this.isPlayerInventorySlot(slotIndex)) {
-            if (!this.moveItemStackTo(stackInSlot, this.craftStartIndex, this.craftEndIndex, false)) {
                 ItemStack remainder = this.insertIntoNetwork(stackInSlot.copy());
                 int moved = stackInSlot.getCount() - remainder.getCount();
                 if (moved <= 0) {
@@ -141,6 +149,8 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
                 }
                 stackInSlot.shrink(moved);
             }
+        } else if (this.isPlayerInventorySlot(slotIndex)) {
+            return this.quickMovePlayerStackToNetwork(slotIndex);
         }
 
         if (stackInSlot.isEmpty()) {
@@ -161,72 +171,115 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
         return this.resultSlotIndex;
     }
 
+    public int getCraftStartIndex() {
+        return this.craftStartIndex;
+    }
+
+    public int getCraftEndIndex() {
+        return this.craftEndIndex;
+    }
+
     public void handleRecipeTransfer(ServerPlayer player, List<ItemStack> ingredients, boolean maxTransfer) {
         if (ingredients.size() != 9) {
             return;
         }
 
         StorageNetwork network = StorageNetwork.discover(this.level, this.panelPos);
-        List<ItemStack> craftGridBackup = new ArrayList<>(9);
-        List<ItemStack> bufferedItems = new ArrayList<>();
 
-        for (int slot = 0; slot < this.craftSlots.getContainerSize(); slot++) {
-            ItemStack existing = this.craftSlots.getItem(slot).copy();
-            craftGridBackup.add(existing);
-            if (!existing.isEmpty()) {
-                bufferedItems.add(existing.copy());
+        Map<ItemStack, Integer> requiredCounts = ItemStackMap.createTypeAndTagMap();
+        int slotLimit = 64;
+        boolean hasIngredients = false;
+
+        for (ItemStack ingredient : ingredients) {
+            if (ingredient.isEmpty()) {
+                continue;
+            }
+            hasIngredients = true;
+            slotLimit = Math.min(slotLimit, Math.min(this.craftSlots.getMaxStackSize(), ingredient.getMaxStackSize()));
+            ItemStack key = ingredient.copy();
+            key.setCount(1);
+            requiredCounts.put(key, requiredCounts.getOrDefault(key, 0) + 1);
+        }
+
+        if (!hasIngredients) {
+            return;
+        }
+
+        int availableSets = maxTransfer ? slotLimit : 1;
+        for (Map.Entry<ItemStack, Integer> entry : requiredCounts.entrySet()) {
+            ItemStack template = entry.getKey();
+            int neededPerSet = entry.getValue();
+
+            int inGrid = this.countInCraftSlots(template);
+            int inInv = this.countInPlayerInventory(template);
+            int inNetwork = network.count(template);
+            int total = inGrid + inInv + inNetwork;
+
+            int possibleSets = total / neededPerSet;
+            availableSets = Math.min(availableSets, possibleSets);
+        }
+
+        if (availableSets <= 0) {
+            return;
+        }
+
+        int targetSets = availableSets;
+
+        // Step A: Evict any mismatched items or excess items from craft slots
+        for (int slot = 0; slot < 9; slot++) {
+            ItemStack template = ingredients.get(slot);
+            ItemStack current = this.craftSlots.getItem(slot);
+
+            if (current.isEmpty()) {
+                continue;
+            }
+
+            if (template.isEmpty() || !ItemStack.isSameItemSameComponents(current, template)) {
                 this.craftSlots.setItem(slot, ItemStack.EMPTY);
+                this.returnStackSafely(player, network, current);
+            } else if (current.getCount() > targetSets) {
+                ItemStack excess = current.split(current.getCount() - targetSets);
+                this.craftSlots.setItem(slot, current);
+                this.returnStackSafely(player, network, excess);
             }
         }
 
-        int transferredSets = 0;
-        while (true) {
-            List<ItemStack> takenSet = new ArrayList<>(9);
-            boolean completeSet = true;
-
-            for (int slot = 0; slot < ingredients.size(); slot++) {
-                ItemStack ingredient = ingredients.get(slot);
-                if (ingredient.isEmpty()) {
-                    takenSet.add(ItemStack.EMPTY);
-                    continue;
-                }
-
-                if (!this.canIncreaseCraftSlot(slot, ingredient)) {
-                    completeSet = false;
-                    break;
-                }
-
-                ItemStack taken = this.takeSingleIngredient(ingredient, bufferedItems, network);
-                if (taken.isEmpty()) {
-                    completeSet = false;
-                    break;
-                }
-
-                takenSet.add(taken);
+        // Step B: Fill each recipe slot up to targetSets
+        for (int slot = 0; slot < 9; slot++) {
+            ItemStack template = ingredients.get(slot);
+            if (template.isEmpty()) {
+                continue;
             }
 
-            if (!completeSet) {
-                for (ItemStack taken : takenSet) {
-                    if (!taken.isEmpty()) {
-                        bufferedItems.add(taken);
-                    }
+            ItemStack current = this.craftSlots.getItem(slot);
+            int currentCount = current.isEmpty() ? 0 : current.getCount();
+            int needed = targetSets - currentCount;
+
+            if (needed <= 0) {
+                continue;
+            }
+
+            int fromInv = this.pullFromPlayerInventory(template, needed);
+            needed -= fromInv;
+
+            int fromNet = 0;
+            if (needed > 0) {
+                ItemStack extracted = network.extract(template, needed);
+                fromNet = extracted.getCount();
+                needed -= fromNet;
+            }
+
+            int added = fromInv + fromNet;
+            if (added > 0) {
+                if (current.isEmpty()) {
+                    ItemStack newStack = template.copy();
+                    newStack.setCount(added);
+                    this.craftSlots.setItem(slot, newStack);
+                } else {
+                    current.grow(added);
+                    this.craftSlots.setItem(slot, current);
                 }
-                break;
             }
-
-            this.applyTakenSet(takenSet);
-            transferredSets++;
-            if (!maxTransfer) {
-                break;
-            }
-        }
-
-        if (transferredSets == 0) {
-            for (int slot = 0; slot < craftGridBackup.size(); slot++) {
-                this.craftSlots.setItem(slot, craftGridBackup.get(slot).copy());
-            }
-        } else {
-            this.returnBufferedItems(player, bufferedItems, network);
         }
 
         this.slotsChanged(this.craftSlots);
@@ -261,102 +314,63 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
         return CraftingInput.of(3, 3, inputs);
     }
 
-    private boolean canIncreaseCraftSlot(int slotIndex, ItemStack ingredient) {
-        ItemStack current = this.craftSlots.getItem(slotIndex);
-        int capacity = Math.min(this.craftSlots.getMaxStackSize(), ingredient.getMaxStackSize());
-        if (current.isEmpty()) {
-            return capacity > 0;
-        }
-
-        return ItemStack.isSameItemSameComponents(current, ingredient) && current.getCount() < capacity;
-    }
-
-    private ItemStack takeSingleIngredient(ItemStack ingredient, List<ItemStack> bufferedItems, StorageNetwork network) {
-        ItemStack fromBuffer = this.takeFromBufferedItems(ingredient, bufferedItems);
-        if (!fromBuffer.isEmpty()) {
-            return fromBuffer;
-        }
-
-        ItemStack fromInventory = this.takeFromPlayerInventory(ingredient);
-        if (!fromInventory.isEmpty()) {
-            return fromInventory;
-        }
-
-        ItemStack fromNetwork = network.extract(ingredient, 1);
-        if (!fromNetwork.isEmpty()) {
-            fromNetwork.setCount(1);
-            return fromNetwork;
-        }
-
-        return ItemStack.EMPTY;
-    }
-
-    private ItemStack takeFromBufferedItems(ItemStack ingredient, List<ItemStack> bufferedItems) {
-        for (int index = 0; index < bufferedItems.size(); index++) {
-            ItemStack stack = bufferedItems.get(index);
-            if (!ItemStack.isSameItemSameComponents(stack, ingredient)) {
-                continue;
+    private int countInCraftSlots(ItemStack template) {
+        int total = 0;
+        for (int slot = 0; slot < this.craftSlots.getContainerSize(); slot++) {
+            ItemStack stack = this.craftSlots.getItem(slot);
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack, template)) {
+                total += stack.getCount();
             }
-
-            ItemStack taken = stack.split(1);
-            if (stack.isEmpty()) {
-                bufferedItems.remove(index);
-            }
-            return taken;
         }
-
-        return ItemStack.EMPTY;
+        return total;
     }
 
-    private ItemStack takeFromPlayerInventory(ItemStack ingredient) {
+    private int countInPlayerInventory(ItemStack template) {
+        int total = 0;
         for (int slotIndex = this.getPlayerInventoryStart(); slotIndex < this.getPlayerInventoryEnd(); slotIndex++) {
             Slot slot = this.slots.get(slotIndex);
             ItemStack stack = slot.getItem();
-            if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, ingredient)) {
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack, template)) {
+                total += stack.getCount();
+            }
+        }
+        return total;
+    }
+
+    private int pullFromPlayerInventory(ItemStack template, int count) {
+        int remaining = count;
+        for (int slotIndex = this.getPlayerInventoryStart(); slotIndex < this.getPlayerInventoryEnd(); slotIndex++) {
+            Slot slot = this.slots.get(slotIndex);
+            ItemStack stack = slot.getItem();
+            if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, template)) {
                 continue;
             }
 
-            ItemStack taken = stack.split(1);
+            int toTake = Math.min(remaining, stack.getCount());
+            stack.shrink(toTake);
+            remaining -= toTake;
+
             if (stack.isEmpty()) {
                 slot.set(ItemStack.EMPTY);
             } else {
                 slot.setChanged();
             }
-            return taken;
-        }
 
-        return ItemStack.EMPTY;
-    }
-
-    private void applyTakenSet(List<ItemStack> takenSet) {
-        for (int slot = 0; slot < takenSet.size(); slot++) {
-            ItemStack taken = takenSet.get(slot);
-            if (taken.isEmpty()) {
-                continue;
-            }
-
-            ItemStack current = this.craftSlots.getItem(slot);
-            if (current.isEmpty()) {
-                this.craftSlots.setItem(slot, taken.copy());
-            } else {
-                current.grow(1);
-                this.craftSlots.setItem(slot, current);
+            if (remaining <= 0) {
+                break;
             }
         }
+        return count - remaining;
     }
 
-    private void returnBufferedItems(ServerPlayer player, List<ItemStack> bufferedItems, StorageNetwork network) {
-        for (ItemStack bufferedItem : bufferedItems) {
-            if (bufferedItem.isEmpty()) {
-                continue;
-            }
+    private void returnStackSafely(ServerPlayer player, StorageNetwork network, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return;
+        }
 
-            ItemStack remaining = bufferedItem.copy();
-            this.moveItemStackTo(remaining, this.getPlayerInventoryStart(), this.getPlayerInventoryEnd(), false);
-            if (!remaining.isEmpty()) {
-                remaining = network.insert(remaining);
-            }
-            if (!remaining.isEmpty()) {
+        ItemStack remaining = network.insert(stack);
+        if (!remaining.isEmpty()) {
+            if (!player.getInventory().add(remaining)) {
                 player.drop(remaining, false);
             }
         }

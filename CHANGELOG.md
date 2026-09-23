@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.2
+
+- Fixed item deletion and loss when transferring recipes via JEI into the Crafting Panel.
+- Fixed recipe shape preservation in the Crafting Panel JEI transfer handler (correct 3x3 slot placement).
+- Fixed shift-clicking items in player inventory while in Crafting Panel to deposit directly into the storage network instead of filling the crafting grid.
+- Crafting Panel now safely returns remaining crafting grid items to storage network upon closing.
+- Recipe transfer now pre-calculates available sets non-destructively; incomplete sets will not consume or drop items.
+
 ## 1.4.1
 
 - Fixed crafting recipes by migrating from legacy `data/<modid>/recipes/` to modern `data/<modid>/recipe/` and updating to modern ingredient syntax.
