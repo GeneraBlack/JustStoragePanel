@@ -8,6 +8,7 @@ import java.util.Locale;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -84,6 +85,19 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
     }
 
     @Override
+    public boolean keyPressed(KeyEvent event) {
+        if (this.searchBox != null && this.searchBox.keyPressed(event)) {
+            return true;
+        }
+
+        if (this.searchBox != null && this.searchBox.isFocused() && this.searchBox.isVisible() && event.key() != 256) {
+            return true;
+        }
+
+        return super.keyPressed(event);
+    }
+
+    @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
@@ -91,15 +105,16 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
 
     @Override
     protected void renderSlotContents(GuiGraphics guiGraphics, ItemStack itemStack, Slot slot, String countString) {
-        String overlayCount = countString;
-        if (overlayCount == null && slot instanceof NetworkDisplaySlot && !itemStack.isEmpty()) {
+        if (slot instanceof NetworkDisplaySlot && !itemStack.isEmpty()) {
+            super.renderSlotContents(guiGraphics, itemStack, slot, "");
             int totalCount = this.menu.getDisplayCount(slot.index);
             if (totalCount > 1) {
-                overlayCount = this.formatCount(totalCount);
+                this.renderSlotCount(guiGraphics, slot.x, slot.y, totalCount);
             }
+            return;
         }
 
-        super.renderSlotContents(guiGraphics, itemStack, slot, overlayCount);
+        super.renderSlotContents(guiGraphics, itemStack, slot, countString);
     }
 
     @Override
@@ -177,12 +192,28 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
         ClientPacketDistributor.sendToServer(new PanelSearchPayload(this.menu.containerId, this.pendingSearchQuery));
     }
 
+    private void renderSlotCount(GuiGraphics guiGraphics, int slotX, int slotY, int totalCount) {
+        String text = this.formatCount(totalCount);
+        int textWidth = this.font.width(text);
+        float maxAllowedWidth = 14.0f;
+        float scale = textWidth > maxAllowedWidth ? maxAllowedWidth / textWidth : 1.0f;
+
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().translate(slotX + 16.0f, slotY + 16.0f);
+        guiGraphics.pose().scale(scale, scale);
+        guiGraphics.drawString(this.font, text, -textWidth, -this.font.lineHeight + 1, 0xFFFFFF, true);
+        guiGraphics.pose().popMatrix();
+    }
+
     private String formatCount(int count) {
         if (count < 1_000) {
             return Integer.toString(count);
         }
 
         if (count < 10_000) {
+            if (count % 1_000 == 0) {
+                return (count / 1_000) + "k";
+            }
             return String.format(Locale.ROOT, "%.1fk", count / 1_000.0D);
         }
 
@@ -191,6 +222,9 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
         }
 
         if (count < 10_000_000) {
+            if (count % 1_000_000 == 0) {
+                return (count / 1_000_000) + "M";
+            }
             return String.format(Locale.ROOT, "%.1fM", count / 1_000_000.0D);
         }
 

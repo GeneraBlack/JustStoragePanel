@@ -124,20 +124,7 @@ public final class CraftingPanelMenu extends AbstractPanelMenu {
         }
 
         if (this.isDisplaySlot(slotIndex)) {
-            ItemStack extracted = this.extractFromNetwork(this.slots.get(slotIndex).getItem(), this.slots.get(slotIndex).getItem().getMaxStackSize());
-            if (extracted.isEmpty()) {
-                return ItemStack.EMPTY;
-            }
-
-            ItemStack pulled = extracted.copy();
-            this.moveItemStackTo(extracted, this.craftStartIndex, this.craftEndIndex, false);
-            if (!extracted.isEmpty()) {
-                this.moveItemStackTo(extracted, this.getPlayerInventoryStart(), this.getPlayerInventoryEnd(), true);
-            }
-            if (!extracted.isEmpty()) {
-                this.insertIntoNetwork(extracted);
-            }
-            return pulled;
+            return this.extractVisibleStackToInventory(slotIndex);
         }
 
         if (slotIndex >= this.craftStartIndex && slotIndex < this.craftEndIndex) {

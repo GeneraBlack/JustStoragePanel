@@ -1,10 +1,12 @@
 package de.juststoragepanel.network;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -17,7 +19,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.common.util.ItemStackMap;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -73,8 +77,22 @@ public final class StorageNetwork {
         clearLevel(event.getLevel());
     }
 
+    private static Object getInventoryIdentity(BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof ChestBlock && state.hasProperty(ChestBlock.TYPE)) {
+            ChestType type = state.getValue(ChestBlock.TYPE);
+            if (type != ChestType.SINGLE) {
+                Direction connected = ChestBlock.getConnectedDirection(state);
+                BlockPos other = pos.relative(connected);
+                BlockPos canonical = pos.compareTo(other) < 0 ? pos : other;
+                return "chest:" + canonical;
+            }
+        }
+        return pos.immutable();
+    }
+
     private static DiscoveryResult discoverTopology(Level level, BlockPos origin) {
         Map<BlockPos, Direction> discoveredEndpoints = new LinkedHashMap<>();
+        Set<Object> discoveredInventories = new HashSet<>();
         Set<BlockPos> invalidationPositions = new HashSet<>();
         Deque<BlockPos> openSet = new ArrayDeque<>();
         Set<BlockPos> visited = new HashSet<>();
@@ -102,7 +120,15 @@ public final class StorageNetwork {
 
                 Direction accessSide = direction.getOpposite();
                 if (NetworkConnectionHelper.resolveHandler(level, neighbor, accessSide) != null) {
-                    discoveredEndpoints.putIfAbsent(neighbor, accessSide);
+                    if (neighborState.getBlock() instanceof ChestBlock && neighborState.hasProperty(ChestBlock.TYPE)
+                            && neighborState.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
+                        invalidationPositions.add(neighbor.relative(ChestBlock.getConnectedDirection(neighborState)).immutable());
+                    }
+
+                    Object identity = getInventoryIdentity(neighbor, neighborState);
+                    if (discoveredInventories.add(identity)) {
+                        discoveredEndpoints.put(neighbor, accessSide);
+                    }
                 }
             }
         }
@@ -121,10 +147,11 @@ public final class StorageNetwork {
     public List<NetworkItem> listItems(String searchQuery) {
         String normalizedQuery = searchQuery == null ? "" : searchQuery.trim().toLowerCase(Locale.ROOT);
         Map<ItemStack, MutableNetworkItem> merged = ItemStackMap.createTypeAndTagMap();
+        Set<ResourceHandler<ItemResource>> visitedHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
 
         for (Endpoint endpoint : this.endpoints) {
             ResourceHandler<ItemResource> handler = endpoint.resolve(this.level);
-            if (handler == null) {
+            if (handler == null || !visitedHandlers.add(handler)) {
                 continue;
             }
 
@@ -153,9 +180,10 @@ public final class StorageNetwork {
         }
 
         ItemStack remaining = stack.copy();
+        Set<ResourceHandler<ItemResource>> visitedHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Endpoint endpoint : this.endpoints) {
             ResourceHandler<ItemResource> handler = endpoint.resolve(this.level);
-            if (handler == null) {
+            if (handler == null || !visitedHandlers.add(handler)) {
                 continue;
             }
 
@@ -176,9 +204,10 @@ public final class StorageNetwork {
         ItemStack extractedTotal = ItemStack.EMPTY;
         ItemResource resourceTemplate = ItemResource.of(template);
         int remaining = amount;
+        Set<ResourceHandler<ItemResource>> visitedHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Endpoint endpoint : this.endpoints) {
             ResourceHandler<ItemResource> handler = endpoint.resolve(this.level);
-            if (handler == null) {
+            if (handler == null || !visitedHandlers.add(handler)) {
                 continue;
             }
 
