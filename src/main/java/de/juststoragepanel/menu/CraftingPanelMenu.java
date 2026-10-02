@@ -30,7 +30,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 
 public final class CraftingPanelMenu extends AbstractPanelMenu {
-    private static final int CRAFT_RESULT_X = 240;
+    private static final int CRAFT_RESULT_X = 258;
     private static final int CRAFT_RESULT_Y = 54;
     private static final int CRAFT_GRID_X = 182;
     private static final int CRAFT_GRID_Y = 36;

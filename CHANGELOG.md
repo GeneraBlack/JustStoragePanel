@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.8
+
+- Fixed double chest items appearing twice in the storage panel when cables connect to both halves.
+- Fixed item count text (e.g. "5.3k") overflowing into adjacent slots by accounting for drop shadow width in scaling.
+- Fixed the inventory key (default 'e') closing the panel while typing in the search field or at any time.
+- Fixed shift-clicking items from the storage panel into the player inventory doing nothing.
+
 ## 1.0.7
 
 - Fixed JEI recipe transfer slot mapping: recipes with empty slots or dimensions smaller than 3x3 (e.g. chests, torches, buckets) now map directly to the correct 3x3 crafting grid positions.
