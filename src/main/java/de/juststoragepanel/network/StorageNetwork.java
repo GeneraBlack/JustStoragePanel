@@ -242,9 +242,10 @@ public final class StorageNetwork {
         }
 
         int total = 0;
+        Set<IItemHandler> visitedHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Endpoint endpoint : this.endpoints) {
             IItemHandler handler = endpoint.resolve(this.level);
-            if (handler == null) {
+            if (handler == null || !visitedHandlers.add(handler)) {
                 continue;
             }
 
