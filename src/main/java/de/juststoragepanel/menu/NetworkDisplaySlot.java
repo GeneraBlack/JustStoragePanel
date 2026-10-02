@@ -17,7 +17,7 @@ public final class NetworkDisplaySlot extends Slot {
 
     @Override
     public boolean mayPickup(Player player) {
-        return false;
+        return true;
     }
 
     @Override

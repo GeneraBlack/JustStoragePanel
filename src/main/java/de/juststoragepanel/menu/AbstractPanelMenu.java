@@ -97,14 +97,18 @@ public abstract class AbstractPanelMenu extends AbstractContainerMenu {
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
         if (this.isDisplaySlot(slotId)) {
-            if (clickType == ClickType.PICKUP) {
-                this.handleDisplaySlotClick(slotId, button);
-                return;
+            // Only process network operations server-side to avoid client prediction desync
+            if (!this.level.isClientSide) {
+                if (clickType == ClickType.PICKUP) {
+                    this.handleDisplaySlotClick(slotId, button);
+                    return;
+                }
+                if (clickType == ClickType.QUICK_MOVE) {
+                    this.quickMoveStack(player, slotId);
+                    return;
+                }
             }
-            if (clickType == ClickType.QUICK_MOVE) {
-                this.quickMoveStack(player, slotId);
-                return;
-            }
+            return;
         }
 
         super.clicked(slotId, button, clickType, player);
