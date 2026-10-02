@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.3
+
+- Fixed double chest items appearing twice in the storage panel when cables connect to both halves.
+- Fixed item count text (e.g. "5.3k") overflowing into adjacent slots by accounting for drop shadow width in scaling.
+- Fixed the inventory key (default 'e') closing the panel while typing in the search field or at any time.
+- Fixed shift-clicking items from the storage panel into the player inventory doing nothing.
+
 ## 1.6.2
 
 - Fixed item deletion and loss when transferring recipes via JEI into the Crafting Panel.
