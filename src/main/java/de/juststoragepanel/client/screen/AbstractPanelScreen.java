@@ -90,7 +90,18 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
             return true;
         }
 
-        if (this.searchBox != null && this.searchBox.isFocused() && this.searchBox.isVisible() && event.key() != 256) {
+        if (this.searchBox != null && this.searchBox.isFocused() && this.searchBox.isVisible()) {
+            // When search box is focused, Escape unfocuses it instead of closing the panel
+            if (event.key() == 256) {
+                this.searchBox.setFocused(false);
+                return true;
+            }
+            return true;
+        }
+
+        // Prevent the inventory key (default 'e') from closing the panel.
+        // Only Escape should close it.
+        if (this.minecraft != null && this.minecraft.options.keyInventory.matches(event)) {
             return true;
         }
 
@@ -136,7 +147,7 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
         guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xFFD9D2B6, false);
 
         Component pageText = Component.literal(this.menu.getCurrentPage() + " / " + this.menu.getMaxPage());
-        int pageX = this.imageWidth - 94 - this.font.width(pageText);
+        int pageX = this.imageWidth - 54 - 4 - this.font.width(pageText);
         guiGraphics.drawString(this.font, pageText, pageX, 11, 0xFFE07A5F, false);
     }
 
@@ -192,17 +203,24 @@ public abstract class AbstractPanelScreen<T extends AbstractPanelMenu> extends n
         ClientPacketDistributor.sendToServer(new PanelSearchPayload(this.menu.containerId, this.pendingSearchQuery));
     }
 
-    private void renderSlotCount(GuiGraphics guiGraphics, int slotX, int slotY, int totalCount) {
+private void renderSlotCount(GuiGraphics guiGraphics, int slotX, int slotY, int totalCount) {
         String text = this.formatCount(totalCount);
         int textWidth = this.font.width(text);
-        float maxAllowedWidth = 14.0f;
-        float scale = textWidth > maxAllowedWidth ? maxAllowedWidth / textWidth : 1.0f;
+        // Vanilla item count position: right-aligned to x+17, baseline at y+9
+        int maxWidth = 17;
 
-        guiGraphics.pose().pushMatrix();
-        guiGraphics.pose().translate(slotX + 16.0f, slotY + 16.0f);
-        guiGraphics.pose().scale(scale, scale);
-        guiGraphics.drawString(this.font, text, -textWidth, -this.font.lineHeight + 1, 0xFFFFFF, true);
-        guiGraphics.pose().popMatrix();
+        if (textWidth + 1 > maxWidth) {
+            // Scale down for wider text (e.g. "1.3k", "5.3k") to prevent overflow into adjacent slots
+            float scale = (float) maxWidth / (textWidth + 1.0f);
+            guiGraphics.pose().pushMatrix();
+            guiGraphics.pose().translate(slotX + 17.0f, slotY + 9.0f);
+            guiGraphics.pose().scale(scale, scale);
+            guiGraphics.drawString(this.font, text, -textWidth, 0, 0xFFFFFFFF, true);
+            guiGraphics.pose().popMatrix();
+        } else {
+            // Normal rendering using vanilla's exact item count position
+            guiGraphics.drawString(this.font, text, slotX + 17 - textWidth, slotY + 9, 0xFFFFFFFF, true);
+        }
     }
 
     private String formatCount(int count) {
