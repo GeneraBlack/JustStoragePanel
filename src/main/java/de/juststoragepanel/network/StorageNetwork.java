@@ -243,9 +243,10 @@ public final class StorageNetwork {
         }
 
         int total = 0;
+        Set<ResourceHandler<ItemResource>> visitedHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Endpoint endpoint : this.endpoints) {
             ResourceHandler<ItemResource> handler = endpoint.resolve(this.level);
-            if (handler == null) {
+            if (handler == null || !visitedHandlers.add(handler)) {
                 continue;
             }
 
